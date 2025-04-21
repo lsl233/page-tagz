@@ -1,6 +1,5 @@
 import type React from "react"
 import { Github, FileText, NetworkIcon as Netflix, ShoppingBag } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 type BookmarkItem = {

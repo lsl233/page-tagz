@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button-loading";
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -32,14 +31,20 @@ interface CommandSelectProps<T> {
   onCreate?: (name: string) => Promise<T>;
 }
 
-export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<any>>(({
+interface CommandOption {
+  id: string;
+  name: string;
+  color?: string;
+  icon?: React.ReactNode;
+}
+
+export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<CommandOption>>(({
   placeholder = "place select",
   value = [],
   onChange = () => { },
   options = [],
   onCreate,
   multiple = true,
-  disabled = false,
 }, ref) => {
   const [open, setOpen] = React.useState(false);
   const [creatingOption, setCreatingOption] = useState(false)
@@ -48,8 +53,6 @@ export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<any>
     search: "",
     count: 0,
   });
-
-  console.log('options', options)
 
   useEffect(() => {
     setInternalValues(value)
@@ -80,6 +83,7 @@ export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<any>
       setCreatingOption(true)
       const createdOption = await onCreate?.(commandState.search);
       setInternalValues((prev) => {
+        if (!createdOption) return prev;
         const newValues = [...prev, createdOption.id];
         onChange(newValues);
         return newValues;
@@ -166,6 +170,6 @@ export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<any>
       </PopoverContent>
     </Popover>
   );
-}) as <T extends { id: string; name: string }>(props: CommandSelectProps<T> & { ref?: React.Ref<HTMLDivElement> }) => React.ReactElement;
+})
 
-(Combobox as React.FC).displayName = "Combobox";
+Combobox.displayName = "Combobox";

@@ -6,15 +6,10 @@ import { BookmarkSidebar } from "@/components/bookmark-sidebar"
 import { RightSidebar } from "@/components/right-sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutGrid, List, Search, X } from "lucide-react"
+import { LayoutGrid, List, Search } from "lucide-react"
 
 export function BookmarkManager() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list")
-  const [activeFilters, setActiveFilters] = useState<string[]>(["Frontend Dev", "Recently Added"])
-
-  const removeFilter = (filter: string) => {
-    setActiveFilters(activeFilters.filter((f) => f !== filter))
-  }
 
   return (
     <div className="flex h-screen bg-background">

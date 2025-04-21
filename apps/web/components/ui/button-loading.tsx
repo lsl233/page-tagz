@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
+
 export interface ButtonProps extends ShadcnButtonProps {
   loading?: boolean;
 }
@@ -16,7 +17,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     className,
     disabled,
     ...props
-  }, ref) => {
+  }) => {
     return (
       <ShadcnButton
         {...props}
@@ -37,3 +38,5 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 )
+
+Button.displayName = "Button"

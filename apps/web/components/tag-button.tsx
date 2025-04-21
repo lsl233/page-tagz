@@ -1,0 +1,18 @@
+"use client"
+
+import { useState } from "react"
+import { TagDialog } from "@/components/tag-dialog"
+import { Button } from "@/components/ui/button"
+
+export const TagButton = () => {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <TagDialog open={open} onOpenChange={setOpen}></TagDialog>
+      <Button onClick={() => setOpen(true)} className="w-full gap-2" variant="outline">
+        <span className="text-lg">+</span> New Tag
+      </Button>
+    </>
+  )
+}

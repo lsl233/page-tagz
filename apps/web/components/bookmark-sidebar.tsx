@@ -2,6 +2,7 @@ import type React from "react"
 import { FolderIcon, ShoppingBag, Utensils } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { TagButton } from "@/components/tag-button"
 
 type TagItem = {
   name: string
@@ -57,6 +58,8 @@ export function BookmarkSidebar() {
     },
   ]
 
+
+
   return (
     <div className="w-[210px] flex-shrink-0 bg-background flex flex-col">
       <div className="p-4 border-b">
@@ -84,9 +87,7 @@ export function BookmarkSidebar() {
         </ul>
       </div>
       <div className="p-2 border-t">
-        <Button className="w-full gap-2" variant="outline">
-          <span className="text-lg">+</span> New Tag
-        </Button>
+        <TagButton />
       </div>
     </div>
   )

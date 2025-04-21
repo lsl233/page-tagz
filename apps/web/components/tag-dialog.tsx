@@ -1,48 +1,44 @@
 "use client"
 
 import type React from "react"
-import { useForm, type SubmitHandler, type FieldValues } from "react-hook-form"
+import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Combobox } from "./ui/combobox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Textarea } from "@/components/ui/textarea"
 
-const bookmarkSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  url: z.string().url("Please enter a valid URL"),
+const tagSchema = z.object({
+  name: z.string().min(1, "Tag name is required"),
   description: z.string().optional(),
-  tags: z.array(z.string()).min(1, "Please select tag")
+  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid color format").optional(),
 })
 
-export type BookmarkFormData = z.infer<typeof bookmarkSchema>
+export type TagFormData = z.infer<typeof tagSchema>
 
-type BookmarkDialogProps = {
+type TagDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  isEditing: boolean
-  onSubmit?: (data: BookmarkFormData) => void
-  initialData?: BookmarkFormData
+  isEditing?: boolean
+  onSubmit?: (data: TagFormData) => void
+  initialData?: TagFormData
 }
 
-export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initialData }: BookmarkDialogProps) {
-  const defaultValues: BookmarkFormData = {
-    title: "",
-    url: "",
+export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, initialData }: TagDialogProps) {
+  const defaultValues: TagFormData = {
+    name: "",
     description: "",
-    tags: [],
+    color: "#000000",
   }
 
-  const form = useForm<BookmarkFormData>({
-    resolver: zodResolver(bookmarkSchema),
+  const form = useForm<TagFormData>({
+    resolver: zodResolver(tagSchema),
     defaultValues: initialData || defaultValues,
   })
 
-  const handleSubmit: SubmitHandler<BookmarkFormData> = (data) => {
+  const handleSubmit: SubmitHandler<TagFormData> = (data) => {
     onSubmit?.(data)
     handleClose()
   }
@@ -72,40 +68,19 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
         }}
       >
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Bookmark" : "Add Bookmark"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Tag" : "Add Tag"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="title"
+              name="name"
               render={({ field: { onChange, onBlur, value, ref } }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Bookmark title" 
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      ref={ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field: { onChange, onBlur, value, ref } }) => (
-                <FormItem>
-                  <FormLabel>URL</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="https://example.com" 
-                      type="url" 
+                      placeholder="Tag name" 
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
@@ -139,17 +114,35 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
 
             <FormField
               control={form.control}
-              name="tags"
-              render={({ field: { onChange, value } }) => (
+              name="color"
+              render={({ field: { onChange, onBlur, value, ref } }) => (
                 <FormItem>
-                  <FormLabel>Tags</FormLabel>
-                  <FormControl>
-                    <Combobox
-                      value={value}
-                      onChange={onChange}
-                      options={[{ id: "1", name: "Tag 1" }, { id: "2", name: "Tag 2" }]}
-                    />
-                  </FormControl>
+                  <FormLabel>Color</FormLabel>
+                  <div className="flex gap-2 items-center">
+                    <FormControl>
+                      <Input 
+                        type="color"
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        value={value || "#000000"}
+                        ref={ref}
+                        className="w-9 h-9 p-1 cursor-pointer shrink-0"
+                      />
+                    </FormControl>
+                    <FormControl>
+                      <Input 
+                        disabled
+                        type="text"
+                        placeholder="#000000"
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        value={value || "#000000"}
+                        ref={ref}
+                        className="font-mono"
+                        maxLength={7}
+                      />
+                    </FormControl>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -159,11 +152,11 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit">{isEditing ? "Save changes" : "Add bookmark"}</Button>
+              <Button type="submit">{isEditing ? "Save changes" : "Add tag"}</Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
   )
-}
+} 

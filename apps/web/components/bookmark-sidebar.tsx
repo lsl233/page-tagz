@@ -3,6 +3,9 @@ import { FolderIcon, ShoppingBag, Utensils } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { TagButton } from "@/components/tag-button"
+import { LoginButton } from "@/components/login/login-button"
+import { auth } from "@/auth"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 type TagItem = {
   name: string
@@ -11,7 +14,9 @@ type TagItem = {
   active?: boolean
 }
 
-export function BookmarkSidebar() {
+export async function BookmarkSidebar() {
+  const session = await auth()
+
   const tags: TagItem[] = [
     {
       name: "All Bookmarks",
@@ -58,12 +63,13 @@ export function BookmarkSidebar() {
     },
   ]
 
-
-
   return (
-    <div className="w-[210px] flex-shrink-0 bg-background flex flex-col">
-      <div className="p-4 border-b">
-        <h2 className="font-semibold text-lg">My Tags</h2>
+    <div className="w-[210px] flex-shrink-0 bg-muted flex flex-col">
+      <div className="p-2">
+        <h2 className="font-semibold text-lg">Tags</h2>
+      </div>
+      <div className="px-2 py-1">
+        <TagButton />
       </div>
       <div className="flex-1 overflow-auto">
         <ul className="py-2">
@@ -87,7 +93,19 @@ export function BookmarkSidebar() {
         </ul>
       </div>
       <div className="p-2 border-t">
-        <TagButton />
+        {session ? (
+          <div className="flex items-center gap-2">
+            <Avatar>
+              <AvatarImage src={session.user?.image ?? ""} />
+              <AvatarFallback>
+                {session.user?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="ml-2 text-sm text-muted-foreground">{session.user?.name}</span>
+          </div>
+        ) : (
+          <LoginButton />
+        )}
       </div>
     </div>
   )

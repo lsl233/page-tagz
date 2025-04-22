@@ -4,13 +4,12 @@ import {
   Button as ShadcnButton,
 } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
 
 export interface ButtonProps extends ShadcnButtonProps {
   loading?: boolean;
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button: React.FC<ButtonProps> = (
   ({
     children,
     loading,

@@ -1,15 +1,13 @@
-"use client"
-
-import { useState } from "react"
+// import { useState } from "react"
 import { BookmarkList } from "@/components/bookmark-list"
 import { BookmarkSidebar } from "@/components/bookmark-sidebar"
 import { RightSidebar } from "@/components/right-sidebar"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutGrid, List, Search } from "lucide-react"
+import { Search } from "lucide-react"
 
 export function BookmarkManager() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
+  const viewMode = "grid"
+  // const [viewMode] = useState<"grid" | "list">("grid")
 
   return (
     <div className="flex h-screen bg-background">
@@ -18,9 +16,9 @@ export function BookmarkManager() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden border-l border-r">
-        <header className="flex justify-between items-center p-4 border-b">
-          <h1 className="text-xl font-semibold">All Bookmarks</h1>
-          <div className="flex gap-1">
+        {/* <header className="flex justify-between items-center p-4 border-b">
+          <h1 className="text-xl font-semibold">All Bookmarks</h1> */}
+          {/* <div className="flex gap-1">
             <Button
               variant="ghost"
               size="icon"
@@ -37,8 +35,8 @@ export function BookmarkManager() {
             >
               <List className="h-4 w-4" />
             </Button>
-          </div>
-        </header>
+          </div> */}
+        {/* </header> */}
 
         <div className="p-4 border-b">
           <div className="relative">

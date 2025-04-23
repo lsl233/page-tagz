@@ -88,7 +88,7 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
             viewMode === "grid" ? "" : "mb-4 mx-4"
           )}
         >
-          <div className="p-3 flex gap-3 items-center ">
+          <a href={bookmark.url} target="_blank" className="p-3 flex gap-3 items-center ">
             <div className={`${bookmark.iconBg} h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0`}>
               {bookmark.icon}
             </div>
@@ -108,7 +108,7 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
                 </div>
               )} */}
             </div>
-          </div>
+          </a>
         </div>
       ))}
     </div>

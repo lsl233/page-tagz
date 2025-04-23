@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -16,40 +16,93 @@ datasource db {
 
 // --- 用户模型 (对应 users 表) ---
 model User {
-  id        Int       @id @default(autoincrement()) // 主键，自增整数 (对应 PostgreSQL 的 SERIAL)
-  name      String    @unique                     // 用户名，唯一且非空 (对应 TEXT NOT NULL UNIQUE)
-  email     String    @unique                     // 邮箱，唯一且非空 (对应 TEXT NOT NULL UNIQUE)
-  password  String                                // 密码哈希，非空 (对应 TEXT NOT NULL)
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
 
-  // 时间戳字段，使用 @default(now()) 设置创建时间，@updatedAt 设置更新时间
-  createdAt DateTime  @default(now()) @map("created_at") // 对应 created_at 列
-  updatedAt DateTime  @updatedAt @map("updated_at")     // 对应 updated_at 列
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Bookmark  Bookmark[]
+}
 
-  // Relations: 一个用户有很多书签 (One-to-Many)
-  // Prisma 会根据 Bookmark 模型中的 userId 外键自动识别这个关系
-  bookmarks Bookmark[]
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
-  // @map("users") 将模型名称 'User' 映射到数据库中的表名 'users'
-  @@map("users")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
 }
 
 // --- 书签模型 (对应 bookmarks 表) ---
 model Bookmark {
-  id          Int       @id @default(autoincrement()) // 主键，自增整数
-  userId      Int       @map("user_id")              // 外键，关联到 User 模型
+  id     Int    @id @default(autoincrement()) // 主键，自增整数
+  userId String @map("user_id") // 外键，关联到 User 模型
 
-  url         String                                // 网页 URL，非空
-  title       String?                               // 网页标题，可选 (对应 TEXT NULLABLE)
-  description String?                               // 描述，可选 (对应 TEXT NULLABLE)
+  url         String // 网页 URL，非空
+  title       String? // 网页标题，可选 (对应 TEXT NULLABLE)
+  description String? // 描述，可选 (对应 TEXT NULLABLE)
 
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations:
   // 一个书签属于一个用户 (Many-to-One)
   // @relation 定义了 Many-to-One 关系，fields 指向本模型的外键字段，references 指向目标模型的主键字段
   // onDelete: Cascade 对应数据库外键的级联删除行为
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // 一个书签有很多 BookmarkTag 关联记录 (One-to-Many 到中间表)
   // 这是实现 Many-to-Many 的一部分
@@ -64,11 +117,11 @@ model Bookmark {
 
 // --- 标签模型 (对应 tags 表) ---
 model Tag {
-  id        Int       @id @default(autoincrement()) // 主键，自增整数
-  name      String    @unique                     // 标签名称，唯一且非空
+  id   Int    @id @default(autoincrement()) // 主键，自增整数
+  name String @unique // 标签名称，唯一且非空
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations:
   // 一个标签有很多 BookmarkTag 关联记录 (One-to-Many 到中间表)
@@ -84,16 +137,16 @@ model Tag {
 model BookmarkTag {
   // 外键字段，关联到 Bookmark 和 Tag 模型
   bookmarkId Int @map("bookmark_id") // 对应数据库中的 bookmark_id 列
-  tagId      Int @map("tag_id")      // 对应数据库中的 tag_id 列
+  tagId      Int @map("tag_id") // 对应数据库中的 tag_id 列
 
-  createdAt  DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   // Relations:
   // 一条关联记录属于一个书签 (Many-to-One)
-  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  bookmark Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
 
   // 一条关联记录属于一个标签 (Many-to-One)
-  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   // Constraints:
   // @@id([bookmarkId, tagId]) 定义一个联合主键，确保同一个书签和标签的组合唯一

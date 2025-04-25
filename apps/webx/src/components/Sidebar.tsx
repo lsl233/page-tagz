@@ -2,7 +2,6 @@ import { component$ } from '@builder.io/qwik';
 import { LuFolder, LuShoppingBag, LuUtensils, LuGithub } from '@qwikest/icons/lucide';
 import { cn } from '~/lib/utils';
 import { Button } from './Button/Button';
-import { signIn } from 'next-auth/react';
 import { useSignIn } from '~/routes/plugin@auth';
 // TODO: Import these components after they are converted to Qwik
 // import { Button } from '~/components/ui/button';
@@ -15,16 +14,6 @@ interface TagItem {
   icon: any; // Will need proper typing once we have Qwik-compatible icons
   count: number;
   active?: boolean;
-}
-
-// TODO: Replace with proper auth mechanism for Qwik
-async function getSession() {
-  return null;
-}
-
-// TODO: Replace with proper API call for Qwik
-async function getUserTags() {
-  return [];
 }
 
 export const Sidebar = component$(() => {

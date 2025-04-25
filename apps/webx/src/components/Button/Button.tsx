@@ -1,4 +1,5 @@
-import { component$, QwikIntrinsicElements, Slot } from '@builder.io/qwik';
+import { component$, Slot } from '@builder.io/qwik';
+import type { QwikIntrinsicElements } from '@builder.io/qwik';
 import { type ClassList } from '@builder.io/qwik';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '~/lib/utils';

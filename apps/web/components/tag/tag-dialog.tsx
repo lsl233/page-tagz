@@ -4,16 +4,16 @@ import type React from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button-loading"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react"
 
 const tagSchema = z.object({
   name: z.string().min(1, "Tag name is required"),
   description: z.string().optional(),
-  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid color format").optional(),
 })
 
 export type TagFormData = z.infer<typeof tagSchema>
@@ -22,15 +22,16 @@ type TagDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   isEditing?: boolean
-  onSubmit?: (data: TagFormData) => void
+  onSubmitSuccess?: (data: TagFormData) => void
   initialData?: TagFormData
 }
 
-export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, initialData }: TagDialogProps) {
+export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSuccess, initialData }: TagDialogProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const defaultValues: TagFormData = {
     name: "",
-    description: "",
-    color: "#000000",
+    description: ""
   }
 
   const form = useForm<TagFormData>({
@@ -38,9 +39,14 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, ini
     defaultValues: initialData || defaultValues,
   })
 
-  const handleSubmit: SubmitHandler<TagFormData> = (data) => {
-    onSubmit?.(data)
-    handleClose()
+  const handleSubmit: SubmitHandler<TagFormData> = async (data) => {
+    setIsSubmitting(true)
+    const res = await fetch("/api/tags", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }).then(res => res.json())
+    setIsSubmitting(false)
+    onSubmitSuccess?.(data)
   }
 
   const handleClose = () => {
@@ -49,8 +55,8 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, ini
   }
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onOpenChange={(open) => {
         if (!open) {
           handleClose()
@@ -58,7 +64,7 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, ini
       }}
       modal={true}
     >
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[425px]"
         onPointerDownOutside={(e) => {
           e.preventDefault()
@@ -79,8 +85,8 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, ini
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Tag name" 
+                    <Input
+                      placeholder="Tag name"
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
@@ -99,8 +105,8 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, ini
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Brief description" 
+                    <Textarea
+                      placeholder="Brief description"
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value || ""}
@@ -112,47 +118,11 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmit, ini
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="color"
-              render={({ field: { onChange, onBlur, value, ref } }) => (
-                <FormItem>
-                  <FormLabel>Color</FormLabel>
-                  <div className="flex gap-2 items-center">
-                    <FormControl>
-                      <Input 
-                        type="color"
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        value={value || "#000000"}
-                        ref={ref}
-                        className="w-9 h-9 p-1 cursor-pointer shrink-0"
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <Input 
-                        disabled
-                        type="text"
-                        placeholder="#000000"
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        value={value || "#000000"}
-                        ref={ref}
-                        className="font-mono"
-                        maxLength={7}
-                      />
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>
+              <Button type="button" disabled={isSubmitting} variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit">{isEditing ? "Save changes" : "Add tag"}</Button>
+              <Button type="submit" loading={isSubmitting}>{isEditing ? "Save changes" : "Add tag"}</Button>
             </DialogFooter>
           </form>
         </Form>

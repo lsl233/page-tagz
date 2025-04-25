@@ -2,10 +2,11 @@ import type React from "react"
 import { FolderIcon, ShoppingBag, Utensils } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { TagButton } from "@/components/tag-button"
+import { TagButton } from "@/components/tag/tag-button"
 import { LoginButton } from "@/components/login/login-button"
 import { auth } from "@/auth"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { getUserTags } from "@/lib/api"
 
 type TagItem = {
   name: string
@@ -16,6 +17,10 @@ type TagItem = {
 
 export async function BookmarkSidebar() {
   const session = await auth()
+
+  const userTags = await getUserTags()
+
+  console.log(userTags)
 
   const tags: TagItem[] = [
     {

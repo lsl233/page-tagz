@@ -5,11 +5,13 @@ import { RightSidebar } from "@/components/right-sidebar"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 
+
 export async function BookmarkManager() {
   const viewMode = "grid"
 
   const tags = await fetch("http://localhost:3000/api/tags").then(res => res.json())
 
+  console.log(tags)
   // const [viewMode] = useState<"grid" | "list">("grid")
 
   return (

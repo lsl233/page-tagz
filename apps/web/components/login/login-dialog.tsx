@@ -4,12 +4,13 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button-loading"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { signIn } from "next-auth/react"
+import { SiGithub } from "react-icons/si"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -49,6 +50,7 @@ type LoginDialogProps = {
 
 export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDialogProps) {
   const [isRegister, setIsRegister] = useState(false)
+  const [isLoggingInWithGithub, setIsLoggingInWithGithub] = useState(false)
 
   const loginForm = useForm<LoginFormData>({
     defaultValues: {
@@ -83,6 +85,11 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
   const handleRegisterSubmit = (data: RegisterFormData) => {
     onRegister?.(data)
     handleClose()
+  }
+
+  const handleGithubLogin = () => {
+    setIsLoggingInWithGithub(true)
+    signIn("github")
   }
 
   return (
@@ -233,8 +240,12 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
               </div>
 
               <DialogFooter className="flex-col sm:flex-col gap-2">
-                <Button onClick={() => signIn("github")} type="submit" className="w-full">
+                <Button type="submit" className="w-full">
                   Login
+                </Button>
+                <Button onClick={handleGithubLogin} loading={isLoggingInWithGithub} type="button" className="w-full" variant="outline">
+                  <SiGithub className="w-4 h-4" />
+                  Login with GitHub
                 </Button>
                 <div className="text-center text-sm">
                   Don't have an account?

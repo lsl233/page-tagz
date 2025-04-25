@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
+  output   = "../generated/client"
 }
 
 datasource db {
@@ -15,80 +15,77 @@ datasource db {
 }
 
 // --- 用户模型 (对应 users 表) ---
-model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
+// model User {
+//   id        String      @id @default(uuid())
+//   name      String   @unique
+//   email     String   @unique
+//   password  String?
+//   image     String?
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Bookmark  Bookmark[]
-}
+// }
 
 model Account {
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-  sessionToken String   @unique
-  userId       String
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // 你可以在这里添加其他用户相关的字段，例如 role, createdAt 等
+  // role        String? @default("user")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  bookmarks Bookmark[] // 用户拥有的书签 (原有关系)
+
+  // *** 新增：用户创建的标签 ***
+  // 定义 One-to-Many 关系到 Tag (创建的标签)
+  tags Tag[] @relation("tags") // "CreatedTags" 必须与 Tag 模型中定义的 @relation 名称一致
+
+  @@map("users")
 }
 
 model VerificationToken {
   identifier String
-  token      String
+  token      String   @unique
   expires    DateTime
 
-  @@id([identifier, token])
-}
-
-// Optional for WebAuthn support
-model Authenticator {
-  credentialID         String  @unique
-  userId               String
-  providerAccountId    String
-  credentialPublicKey  String
-  counter              Int
-  credentialDeviceType String
-  credentialBackedUp   Boolean
-  transports           String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, credentialID])
+  @@unique([identifier, token])
 }
 
 // --- 书签模型 (对应 bookmarks 表) ---
 model Bookmark {
-  id     Int    @id @default(autoincrement()) // 主键，自增整数
+  id     String @id @default(uuid()) // 主键，自增整数
   userId String @map("user_id") // 外键，关联到 User 模型
 
   url         String // 网页 URL，非空
@@ -117,8 +114,11 @@ model Bookmark {
 
 // --- 标签模型 (对应 tags 表) ---
 model Tag {
-  id   Int    @id @default(autoincrement()) // 主键，自增整数
-  name String @unique // 标签名称，唯一且非空
+  id          String  @id @default(uuid()) // 主键，自增整数
+  name        String // 标签名称
+  description String? // 标签描述，可选
+  creatorId   String  @map("creator_id")
+  creator     User    @relation("tags", fields: [creatorId], references: [id], onDelete: Cascade) // "CreatedTags" 是关系名称
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -128,6 +128,8 @@ model Tag {
   // 这是实现 Many-to-Many 的一部分
   bookmarkTags BookmarkTag[]
 
+  // 添加复合唯一约束，确保同一用户不能创建重名标签
+  @@unique([creatorId, name])
   // @map("tags") 将模型名称 'Tag' 映射到数据库中的表名 'tags'
   @@map("tags")
 }
@@ -136,8 +138,8 @@ model Tag {
 // 这个模型代表了书签和标签之间的 Many-to-Many 关联关系
 model BookmarkTag {
   // 外键字段，关联到 Bookmark 和 Tag 模型
-  bookmarkId Int @map("bookmark_id") // 对应数据库中的 bookmark_id 列
-  tagId      Int @map("tag_id") // 对应数据库中的 tag_id 列
+  bookmarkId String @map("bookmark_id") // 对应数据库中的 bookmark_id 列
+  tagId      String @map("tag_id") // 对应数据库中的 tag_id 列
 
   createdAt DateTime @default(now()) @map("created_at")
 

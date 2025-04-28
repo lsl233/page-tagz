@@ -16,13 +16,13 @@ type TagItem = {
 }
 
 export async function BookmarkSidebar() {
+  console.log(111)
   const session = await auth()
 
-  if (!session?.user?.id) {
-    return null
-  }
+  const userInfo = session?.user
 
-  const userTags = await getUserTags(session.user.id)
+
+  const userTags = userInfo ? await getUserTags(userInfo.id) : []
 
   return (
     <div className="w-[210px] flex-shrink-0 bg-muted flex flex-col">
@@ -54,7 +54,7 @@ export async function BookmarkSidebar() {
         </ul>
       </div>
       <div className="p-2 border-t">
-        {session ? (
+        {userInfo ? (
           <div className="flex items-center gap-2">
             <Avatar>
               <AvatarImage src={session.user?.image ?? ""} />

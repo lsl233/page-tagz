@@ -16,13 +16,11 @@ type TagItem = {
 }
 
 export async function BookmarkSidebar() {
-  console.log(111)
   const session = await auth()
 
   const userInfo = session?.user
 
-
-  const userTags = userInfo ? await getUserTags(userInfo.id) : []
+  const userTags = userInfo?.id ? await getUserTags(userInfo.id) : []
 
   return (
     <div className="w-[210px] flex-shrink-0 bg-muted flex flex-col">

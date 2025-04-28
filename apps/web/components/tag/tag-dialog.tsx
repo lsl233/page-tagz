@@ -42,11 +42,12 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
     const userId = session.data?.user?.id
     if (userId) {
 
-      startTransition(async () => {
+      // startTransition(async () => {
 
         // Refresh the current route and fetch new data from the server without
         // losing client-side browser or React state.
         try {
+          setIsSubmitting(true)
           const response = await createTag(userId, {
             name: data.name,
             description: data.description,
@@ -70,7 +71,8 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
         } catch (e) {
           toast.error("An unexpected error occurred")
         }
-      });
+        setIsSubmitting(false)
+      // });
     }
   }
 

@@ -1,5 +1,5 @@
 
-import * as schema from "./schema/index.ts"
+import * as schema from "./schema/index"
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 export * from "drizzle-orm";

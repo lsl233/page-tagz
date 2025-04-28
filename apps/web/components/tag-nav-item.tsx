@@ -1,6 +1,8 @@
 "use client"
 
 import { FiMoreVertical } from "react-icons/fi";
+import { FaHashtag } from "react-icons/fa6";
+
 import { tags } from "drizzle/schema";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -9,6 +11,7 @@ import { TagDialog } from "./tag/tag-dialog";
 import { useSession } from "next-auth/react";
 import { deleteTag } from "@/lib/actions";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
+
 
 export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
   const [open, setOpen] = useState(false);
@@ -46,8 +49,8 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
         description={`This action cannot be undone. This will permanently delete the tag "${tag.name}".`}
         onDelete={handleDelete}
       />
-      <li key={tag.name} className="flex items-center gap-2 w-full justify-start pl-4 pr-1 py-2 h-auto">
-        {/* {tag.icon} */}
+      <li key={tag.name} className="flex items-center gap-1 w-full justify-start pl-2 pr-1 py-2 h-auto">
+        <FaHashtag className="w-4 h-4" />
         <span className="flex-1 text-left">{tag.name}</span>
 
         <DropdownMenu>

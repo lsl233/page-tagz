@@ -1,24 +1,13 @@
 import type React from "react"
 import { Github, FileText, NetworkIcon as Netflix, ShoppingBag } from "lucide-react"
-import { cn } from "@/lib/utils"
-
-type BookmarkItem = {
-  id: string
-  title: string
-  description: string
-  url: string
-  icon: React.ReactNode
-  iconBg: string
-  tags: string[]
-  date: string
-}
+import { BookmarkItem } from "@/components/bookmark/bookmark-item"
 
 type BookmarkListProps = {
   viewMode: "grid" | "list"
 }
 
 export function BookmarkList({ viewMode }: BookmarkListProps) {
-  const bookmarks: BookmarkItem[] = [
+  const bookmarks = [
     {
       id: "1",
       title: "GitHub – 全球最大的代码托管平台",
@@ -81,35 +70,11 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
       }
     >
       {bookmarks.map((bookmark) => (
-        <div
+        <BookmarkItem
           key={bookmark.id}
-          className={cn(
-            "border rounded-lg overflow-hidden hover:shadow-xs transition-shadow",
-            viewMode === "grid" ? "" : "mb-4 mx-4"
-          )}
-        >
-          <a href={bookmark.url} target="_blank" className="p-3 flex gap-3 items-center ">
-            <div className={`${bookmark.iconBg} h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0`}>
-              {bookmark.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-sm line-clamp-1">{bookmark.title}</h3>
-              <div className="text-xs text-muted-foreground">{bookmark.url}</div>
-              {/* {bookmark.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {bookmark.tags.slice(0, 1).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {bookmark.tags.length > 1 && (
-                    <span className="text-xs text-muted-foreground">+{bookmark.tags.length - 1}</span>
-                  )}
-                </div>
-              )} */}
-            </div>
-          </a>
-        </div>
+          {...bookmark}
+          viewMode={viewMode}
+        />
       ))}
     </div>
   )

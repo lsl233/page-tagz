@@ -4,7 +4,7 @@ import { LoginButton } from "@/components/login/login-button"
 import { auth } from "@/auth"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { getUserTags } from "@/lib/actions"
-import { TagNavItem } from "@/components/tag-nav-item";
+import { TagNavItem } from "@/components/tag/tag-nav-item";
 
 
 type TagItem = {

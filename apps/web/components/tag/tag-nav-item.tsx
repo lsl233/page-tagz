@@ -4,10 +4,10 @@ import { FiMoreVertical } from "react-icons/fi";
 import { FaHashtag } from "react-icons/fa6";
 
 import { tags } from "drizzle/schema";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { TagDialog } from "./tag/tag-dialog";
+import { TagDialog } from "@/components/tag/tag-dialog";
 import { useSession } from "next-auth/react";
 import { deleteTag } from "@/lib/actions";
 import { DeleteDialog } from "@/components/ui/delete-dialog";

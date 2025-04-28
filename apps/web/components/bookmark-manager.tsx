@@ -9,9 +9,9 @@ import { Search } from "lucide-react"
 export async function BookmarkManager() {
   const viewMode = "grid"
 
-  const tags = await fetch("http://localhost:3000/api/tags").then(res => res.json())
+  // const tags = await fetch("http://localhost:3000/api/tags").then(res => res.json())
 
-  console.log(tags)
+  // console.log(tags)
   // const [viewMode] = useState<"grid" | "list">("grid")
 
   return (

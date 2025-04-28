@@ -9,44 +9,69 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
-
-const tagSchema = z.object({
-  name: z.string().min(1, "Tag name is required"),
-  description: z.string().optional(),
-})
-
-export type TagFormData = z.infer<typeof tagSchema>
+import { startTransition, useState } from "react"
+import { createTagFormSchema, CreateTagForm } from "@/lib/zod-schema"
+import { createTag } from "@/lib/actions"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 
 type TagDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   isEditing?: boolean
-  onSubmitSuccess?: (data: TagFormData) => void
-  initialData?: TagFormData
+  onSubmitSuccess?: (data: CreateTagForm) => void
+  initialData?: CreateTagForm
 }
 
 export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSuccess, initialData }: TagDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const session = useSession()
 
-  const defaultValues: TagFormData = {
+  const defaultValues: CreateTagForm = {
     name: "",
     description: ""
   }
 
-  const form = useForm<TagFormData>({
-    resolver: zodResolver(tagSchema),
+  const form = useForm<CreateTagForm>({
+    resolver: zodResolver(createTagFormSchema),
     defaultValues: initialData || defaultValues,
   })
 
-  const handleSubmit: SubmitHandler<TagFormData> = async (data) => {
-    setIsSubmitting(true)
-    const res = await fetch("/api/tags", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }).then(res => res.json())
-    setIsSubmitting(false)
-    onSubmitSuccess?.(data)
+  const handleSubmit: SubmitHandler<CreateTagForm> = async (data) => {
+
+    const userId = session.data?.user?.id
+    if (userId) {
+
+      startTransition(async () => {
+
+        // Refresh the current route and fetch new data from the server without
+        // losing client-side browser or React state.
+        try {
+          const response = await createTag(userId, {
+            name: data.name,
+            description: data.description,
+          })
+          if (response.success) {
+            toast.success(response.message)
+            onSubmitSuccess?.(data)
+            handleClose()
+          } else {
+            switch (response.error?.code) {
+              case "DUPLICATE_TAG":
+                form.setError("name", {
+                  type: "manual",
+                  message: "This tag name already exists"
+                })
+                break
+              default:
+                toast.error(response.message)
+            }
+          }
+        } catch (e) {
+          toast.error("An unexpected error occurred")
+        }
+      });
+    }
   }
 
   const handleClose = () => {

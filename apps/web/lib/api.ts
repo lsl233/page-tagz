@@ -8,13 +8,13 @@ export const getUserTags = async () => {
   // if (!session?.user?.id) {
   //   return []
   // }
-  const tags = await prisma.tag.findMany({
-    where: {
-      creatorId: "1",
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
-  return tags
+  // const tags = await prisma.tag.findMany({
+  //   where: {
+  //     creatorId: "1",
+  //   },
+  //   orderBy: {
+  //     createdAt: "desc",
+  //   },
+  // })
+  return []
 }

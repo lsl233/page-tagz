@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server"
-import { prisma } from "database"
+import { and, db, eq, ne } from "drizzle"
+import { tags } from "drizzle/schema"
 import { auth, signOut } from "@/auth"
 import { z } from "zod"
 
@@ -8,33 +9,6 @@ const tagSchema = z.object({
   name: z.string().min(1, "Tag name is required"),
   description: z.string().optional(),
 })
-
-export async function GET(req: NextRequest, res: NextResponse) {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    // 获取当前用户创建的所有标签
-    const tags = await prisma.tag.findMany({
-      where: {
-        creatorId: session.user.id
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
-
-    return NextResponse.json(tags)
-  } catch (error) {
-    console.error('Error fetching tags:', error)
-    return NextResponse.json(
-      { error: "Failed to fetch tags" },
-      { status: 500 }
-    )
-  }
-}
 
 export async function POST(request: Request) {
   try {
@@ -56,11 +30,8 @@ export async function POST(request: Request) {
     console.log('Creating tag with user ID:', session.user.id)
 
     // 3. 检查标签名是否已存在
-    const existingTag = await prisma.tag.findFirst({
-      where: {
-        name: validatedData.name,
-        creatorId: session.user.id
-      }
+    const existingTag = await db.query.tags.findFirst({
+      where: and(eq(tags.name, validatedData.name), eq(tags.userId, session.user.id)),
     })
 
     if (existingTag) {
@@ -71,11 +42,9 @@ export async function POST(request: Request) {
     }
 
     // 4. 创建标签
-    const tag = await prisma.tag.create({
-      data: {
-        ...validatedData,
-        creatorId: session.user.id
-      }
+    const tag = await db.insert(tags).values({
+      ...validatedData,
+      userId: session.user.id
     })
 
     // 5. 返回创建的标签
@@ -111,14 +80,8 @@ export async function PUT(request: Request) {
     const { id, ...updateData } = tagSchema.extend({ id: z.string() }).parse(body)
 
     // 3. 检查标签名是否已存在（排除当前标签）
-    const existingTag = await prisma.tag.findFirst({
-      where: {
-        name: updateData.name,
-        creatorId: session.user.id,
-        NOT: {
-          id: id
-        }
-      }
+    const existingTag = await db.query.tags.findFirst({
+      where: and(eq(tags.name, updateData.name), eq(tags.userId, session.user.id), ne(tags.id, id)),
     })
 
     if (existingTag) {
@@ -129,13 +92,7 @@ export async function PUT(request: Request) {
     }
 
     // 4. 更新标签（只能更新自己创建的标签）
-    const tag = await prisma.tag.update({
-      where: {
-        id,
-        creatorId: session.user.id // 确保只能更新自己的标签
-      },
-      data: updateData
-    })
+    const tag = await db.update(tags).set(updateData).where(and(eq(tags.id, id), eq(tags.userId, session.user.id)))
 
     return NextResponse.json(tag)
   } catch (error) {
@@ -174,12 +131,7 @@ export async function DELETE(request: Request) {
     }
 
     // 3. 删除标签（只能删除自己创建的标签）
-    await prisma.tag.delete({
-      where: {
-        id,
-        creatorId: session.user.id // 确保只能删除自己的标签
-      }
-    })
+    await db.delete(tags).where(and(eq(tags.id, id), eq(tags.userId, session.user.id)))
 
     return NextResponse.json({ success: true })
   } catch (error) {

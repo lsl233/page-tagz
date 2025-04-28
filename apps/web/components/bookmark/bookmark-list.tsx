@@ -1,6 +1,6 @@
 import type React from "react"
 import { Github, FileText, NetworkIcon as Netflix, ShoppingBag } from "lucide-react"
-import { BookmarkItem } from "@/components/bookmark/bookmark-item"
+import { BookmarkItem } from "@/components/bookmark/bookmark-list-item"
 
 type BookmarkListProps = {
   viewMode: "grid" | "list"

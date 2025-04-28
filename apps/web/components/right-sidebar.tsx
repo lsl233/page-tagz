@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { Github, NetworkIcon as Netflix, ShoppingBag, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { BookmarkDialog, type BookmarkFormData } from "@/components/bookmark-dialog"
+import { BookmarkDialog, type BookmarkFormData } from "@/components/bookmark/bookmark-dialog"
 
 type RecentItem = {
   title: string

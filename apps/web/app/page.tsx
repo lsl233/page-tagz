@@ -1,4 +1,4 @@
-import { BookmarkManager } from "@/components/bookmark-manager";
+import { BookmarkManager } from "@/components/bookmark/bookmark-manager";
 
 export default function Home() {
   return (

@@ -1,6 +1,6 @@
 // import { useState } from "react"
-import { BookmarkList } from "@/components/bookmark-list"
-import { BookmarkSidebar } from "@/components/bookmark-sidebar"
+import { BookmarkList } from "@/components/bookmark/bookmark-list"
+import { BookmarkSidebar } from "@/components/bookmark/bookmark-sidebar"
 import { RightSidebar } from "@/components/right-sidebar"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"

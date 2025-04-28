@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Textarea } from "@/components/ui/textarea"
 import { startTransition, useState } from "react"
 import { createTagFormSchema, CreateTagForm } from "@/lib/zod-schema"
-import { createTag } from "@/lib/actions"
+import { createTag, updateTag, type ActionResponse } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 
@@ -20,7 +20,7 @@ type TagDialogProps = {
   onOpenChange: (open: boolean) => void
   isEditing?: boolean
   onSubmitSuccess?: (data: CreateTagForm) => void
-  initialData?: CreateTagForm
+  initialData?: CreateTagForm & { id?: string }
 }
 
 export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSuccess, initialData }: TagDialogProps) {
@@ -38,46 +38,48 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
   })
 
   const handleSubmit: SubmitHandler<CreateTagForm> = async (data) => {
-
     const userId = session.data?.user?.id
-    if (userId) {
+    if (!userId) {
+      toast.error("You must be logged in to perform this action")
+      return
+    }
 
-      // startTransition(async () => {
+    try {
+      setIsSubmitting(true)
+      let response: ActionResponse
 
-        // Refresh the current route and fetch new data from the server without
-        // losing client-side browser or React state.
-        try {
-          setIsSubmitting(true)
-          const response = await createTag(userId, {
-            name: data.name,
-            description: data.description,
-          })
-          if (response.success) {
-            toast.success(response.message)
-            onSubmitSuccess?.(data)
-            handleClose()
-          } else {
-            switch (response.error?.code) {
-              case "DUPLICATE_TAG":
-                form.setError("name", {
-                  type: "manual",
-                  message: "This tag name already exists"
-                })
-                break
-              default:
-                toast.error(response.message)
-            }
-          }
-        } catch (e) {
-          toast.error("An unexpected error occurred")
+      if (isEditing && initialData?.id) {
+        response = await updateTag(userId, initialData.id, data)
+      } else {
+        response = await createTag(userId, data)
+      }
+
+      if (response.success) {
+        toast.success(response.message)
+        onSubmitSuccess?.(data)
+        handleClose()
+      } else {
+        switch (response.error?.code) {
+          case "DUPLICATE_TAG":
+            form.setError("name", {
+              type: "manual",
+              message: "This tag name already exists"
+            })
+            break
+          default:
+            toast.error(response.message)
         }
-        setIsSubmitting(false)
-      // });
+      }
+    } catch (e) {
+      toast.error("An unexpected error occurred")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const handleClose = () => {
     form.reset()
+    form.clearErrors()
     onOpenChange(false)
   }
 

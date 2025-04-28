@@ -7,6 +7,8 @@ import { LoginButton } from "@/components/login/login-button"
 import { auth } from "@/auth"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { getUserTags } from "@/lib/actions"
+import { TagNavItem } from "@/components/tag-nav-item";
+
 
 type TagItem = {
   name: string
@@ -33,21 +35,7 @@ export async function BookmarkSidebar() {
       <div className="flex-1 overflow-auto">
         <ul className="py-2">
           {userTags.map((tag) => (
-            <li key={tag.name}>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start px-4 py-2 h-auto",
-                  // tag.active && "bg-blue-50 text-blue-600 hover:bg-blue-50 hover:text-blue-600",
-                )}
-              >
-                <span className="flex items-center gap-2 w-full">
-                  {/* {tag.icon} */}
-                  <span className="flex-1 text-left">{tag.name}</span>
-                  {/* <span className="text-xs text-muted-foreground">{tag}</span> */}
-                </span>
-              </Button>
-            </li>
+            <TagNavItem key={tag.id} tag={tag} />
           ))}
         </ul>
       </div>

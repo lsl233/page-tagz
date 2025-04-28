@@ -9,7 +9,11 @@ export const TagButton = () => {
 
   return (
     <>
-      <TagDialog open={open} onOpenChange={setOpen}></TagDialog>
+      <TagDialog 
+        open={open} 
+        onOpenChange={setOpen}
+        isEditing={false}
+      />
       <Button onClick={() => setOpen(true)} className="w-full gap-2" variant="outline">
         <span className="text-lg">+</span> New Tag
       </Button>

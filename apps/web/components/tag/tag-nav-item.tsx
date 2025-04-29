@@ -11,12 +11,14 @@ import { TagDialog } from "@/components/tag/tag-dialog";
 import { useSession } from "next-auth/react";
 import { deleteTag } from "@/lib/actions";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
-
+import { useTagContext } from "@/contexts/tag-context";
+import { cn } from "@/lib/utils";
 
 export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const session = useSession();
+  const { selectedTagId, setSelectedTagId } = useTagContext();
 
   const handleDelete = async () => {
     const userId = session.data?.user?.id;
@@ -28,6 +30,10 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
     }
 
     return deleteTag(userId, tag.id);
+  };
+
+  const handleTagClick = () => {
+    setSelectedTagId(selectedTagId === tag.id ? null : tag.id);
   };
 
   return (
@@ -49,12 +55,19 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
         description={`This action cannot be undone. This will permanently delete the tag "${tag.name}".`}
         onDelete={handleDelete}
       />
-      <li key={tag.name} className="flex items-center gap-1 w-full justify-start pl-2 pr-1 py-2 h-auto">
+      <li 
+        key={tag.name} 
+        className={cn(
+          "flex text-sm items-center gap-1 w-full justify-start pl-2 pr-1 py-2 h-auto cursor-pointer hover:bg-accent",
+          selectedTagId === tag.id && "bg-accent"
+        )}
+        onClick={handleTagClick}
+      >
         <FaHashtag className="w-4 h-4" />
         <span className="flex-1 text-left">{tag.name}</span>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon" className="p-0 h-auto w-auto">
               <FiMoreVertical />
             </Button>

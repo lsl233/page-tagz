@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import { TagProvider } from "@/contexts/tag-context"
+// import { ThemeProvider } from "@/contexts/theme-context"
+import { cn } from "@/lib/utils"
 
 import { Toaster } from "sonner";
 
@@ -28,10 +31,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <SessionProvider>
-          {children}
-          <Toaster position="top-center" />
-        </SessionProvider>
+        {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
+          <TagProvider>
+            <SessionProvider>
+              {children}
+              <Toaster position="top-center" />
+            </SessionProvider>
+          </TagProvider>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   );

@@ -3,36 +3,78 @@
 import type React from "react"
 import { cn } from "@/lib/utils"
 import { FiMoreVertical } from "react-icons/fi"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { DeleteDialog } from "@/components/ui/delete-dialog"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { BookmarkDialog } from "@/components/bookmark/bookmark-dialog"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { bookmarks } from "drizzle/schema"
+import { type BookmarkFormData } from "@/lib/zod-schema"
+import { toast } from "sonner"
+import { useTagContext } from "@/contexts/tag-context"
+import { useSession } from "next-auth/react"
+import { updateBookmark } from "@/lib/actions"
+import { LuLink } from "react-icons/lu";
 
-export type BookmarkItemProps = {
-  id: string
-  title: string
-  description: string
-  url: string
-  icon: React.ReactNode
-  iconBg: string
-  tags: string[]
-  date: string
+
+export type BookmarkItemProps = typeof bookmarks.$inferSelect & {
   viewMode: "grid" | "list"
   onDelete?: (id: string) => Promise<{ success: boolean; message: string }>
 }
 
-export function BookmarkItem({ 
-  title, 
-  url, 
-  icon, 
+export function BookmarkItem({
+  id,
+  title,
+  url,
+  description,
+  icon,
   iconBg,
   viewMode,
-
+  onDelete
 }: BookmarkItemProps) {
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [currentTags, setCurrentTags] = useState<string[]>([])
+  const { userTags } = useTagContext()
+  const { data: session } = useSession()
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const response = await fetch(`/api/bookmarks/${id}/tags`)
+        if (!response.ok) {
+          throw new Error("Failed to fetch bookmark tags")
+        }
+        const tags = await response.json()
+        setCurrentTags(tags)
+      } catch (error) {
+        console.error("Error fetching bookmark tags:", error)
+        toast.error("Failed to load bookmark tags")
+      }
+    }
+    fetchTags()
+  }, [id])
+
+  const handleEdit = async (data: BookmarkFormData) => {
+    if (!session?.user?.id) {
+      toast.error("You must be logged in to edit a bookmark")
+      return
+    }
+
+    const response = await updateBookmark(session.user.id, id, data)
+
+    if (response.success) {
+      toast.success(response.message)
+      setEditOpen(false)
+    } else {
+      toast.error(response.message)
+    }
+  }
 
   const handleDelete = async () => {
-    // TODO: Implement delete functionality
+    if (onDelete) {
+      return onDelete(id)
+    }
     return Promise.resolve({ success: true, message: "Bookmark deleted successfully" })
   }
 
@@ -52,29 +94,54 @@ export function BookmarkItem({
         )}
       >
         <div className="p-3 flex gap-3 items-center">
-          <div className={`${iconBg} h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0`}>
-            {icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
-            <div className="text-xs text-muted-foreground line-clamp-1">{url}</div>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="p-0 h-auto w-auto">
-                <FiMoreVertical className="w-auto h-auto -mr-2" />
+          <a href={url} target="_blank" rel="noopener noreferrer" className="flex flex-1 gap-3 items-center">
+            <div className={`${iconBg} h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0`}>
+              {icon ? icon : <LuLink className="h-4 w-4" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
+              <div className="text-xs text-muted-foreground line-clamp-1">{url}</div>
+            </div>
+          </a>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-800 -mr-4 outline-none focus:outline-none hover:bg-transparent focus:border-none flex-shrink-0">
+                <FiMoreVertical className="h-auto" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => setDeleteOpen(true)}
-              >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1" align="end">
+              <div className="flex flex-col">
+                <Button
+                  variant="ghost"
+                  className="justify-start text-sm"
+                  onClick={() => setEditOpen(true)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="justify-start text-sm text-destructive hover:text-destructive"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <BookmarkDialog
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            isEditing={true}
+            onSubmit={handleEdit}
+            availableTags={userTags}
+            initialData={{
+              title: title ?? "",
+              url: url ?? "",
+              description: description ?? "",
+              tags: currentTags
+            }}
+          />
         </div>
       </div>
     </>

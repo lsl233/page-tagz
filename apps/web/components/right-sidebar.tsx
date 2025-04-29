@@ -1,10 +1,7 @@
-"use client"
-
 import type React from "react"
-import { useState } from "react"
-import { Github, NetworkIcon as Netflix, ShoppingBag, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { BookmarkDialog, type BookmarkFormData } from "@/components/bookmark/bookmark-dialog"
+import { Github, NetworkIcon as Netflix, ShoppingBag } from "lucide-react"
+import { RightSidebarActions } from "@/components/right-sidebar-actions"
+import { getUserTags } from "@/lib/actions"
 
 type RecentItem = {
   title: string
@@ -20,15 +17,9 @@ type FrequentItem = {
   visits: number
 }
 
-export function RightSidebar() {
-  const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [currentBookmark, setCurrentBookmark] = useState<BookmarkFormData | undefined>(undefined)
+export async function RightSidebar() {
 
-  const handleBookmarkSubmit = (data: BookmarkFormData) => {
-    console.log("Bookmark data:", data)
-    // Here you would typically save the bookmark data to your state or database
-  }
+  const userTags = await getUserTags()
 
   const recentItems: RecentItem[] = [
     {
@@ -72,27 +63,9 @@ export function RightSidebar() {
     },
   ]
 
-  const addNewBookmark = () => {
-    setIsEditing(false)
-    setCurrentBookmark(undefined)
-    setBookmarkDialogOpen(true)
-  }
-
   return (
     <div className="w-[250px] flex-shrink-0 bg-background flex flex-col">
-      <div className="p-4 flex justify-center">
-        <Button className="w-full gap-2" variant="default" onClick={addNewBookmark}>
-          <Plus className="h-4 w-4" /> Add Bookmark
-        </Button>
-
-        <BookmarkDialog
-          open={bookmarkDialogOpen}
-          onOpenChange={setBookmarkDialogOpen}
-          isEditing={isEditing}
-          onSubmit={handleBookmarkSubmit}
-          initialData={currentBookmark}
-        />
-      </div>
+      <RightSidebarActions userTags={userTags} />
 
       <div className="flex-1 overflow-auto p-4">
         <section className="mb-6">
@@ -132,7 +105,7 @@ export function RightSidebar() {
         <section>
           <h3 className="text-sm font-medium mb-3">Tools</h3>
           <div className="space-y-2">
-            <Button variant="ghost" className="w-full justify-start text-sm h-8 px-2">
+            <button className="w-full flex items-center text-sm h-8 px-2 text-muted-foreground hover:text-foreground">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M3 14V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V14"
@@ -150,8 +123,8 @@ export function RightSidebar() {
                 />
               </svg>
               Import Bookmarks
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-sm h-8 px-2">
+            </button>
+            <button className="w-full flex items-center text-sm h-8 px-2 text-muted-foreground hover:text-foreground">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M3 14V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V14"
@@ -169,8 +142,8 @@ export function RightSidebar() {
                 />
               </svg>
               Export Bookmarks
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-sm h-8 px-2">
+            </button>
+            <button className="w-full flex items-center text-sm h-8 px-2 text-muted-foreground hover:text-foreground">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
@@ -188,15 +161,15 @@ export function RightSidebar() {
                 />
               </svg>
               Settings
-            </Button>
+            </button>
           </div>
         </section>
       </div>
 
       <div className="p-4 border-t flex justify-between items-center">
-        <Button variant="ghost" size="sm" className="text-xs">
+        <button className="text-xs text-muted-foreground hover:text-foreground">
           Dark Mode
-        </Button>
+        </button>
         <div className="text-xs text-muted-foreground">© 2025 Bookmark Manager v1.0.0</div>
       </div>
     </div>

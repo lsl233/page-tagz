@@ -1,9 +1,10 @@
 "use server"
 import { db } from "drizzle"
-import { tags } from "drizzle/schema"
-import { eq, desc } from "drizzle"
-import { CreateTagForm } from "@/lib/zod-schema"
+import { tags, bookmarks, bookmarkTags } from "drizzle/schema"
+import { eq, desc, inArray } from "drizzle"
+import { CreateTagForm, BookmarkFormData } from "@/lib/zod-schema"
 import { revalidatePath } from "next/cache"
+import { auth } from "@/auth"
 
 export type ActionResponse = {
   success: boolean
@@ -15,9 +16,13 @@ export type ActionResponse = {
   }
 }
 
-export const getUserTags = async (userId: string) => {
+export const getUserTags = async (userId?: string) => {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return []
+  }
   const foundTags = await db.query.tags.findMany({
-    where: eq(tags.userId, userId),
+    where: eq(tags.userId, session.user.id),
     orderBy: [desc(tags.createdAt)],
   })
   return foundTags
@@ -163,6 +168,199 @@ export const deleteTag = async (userId: string, tagId: string): Promise<ActionRe
     return {
       success: false,
       message: 'Failed to delete tag',
+      error: {
+        code: "DATABASE_ERROR",
+        details: e instanceof Error ? e.message : "Unknown error occurred"
+      }
+    }
+  }
+}
+
+export const createBookmark = async (userId: string, bookmark: BookmarkFormData): Promise<ActionResponse> => {
+  try {
+    // 检查是否已存在相同URL的书签（基于用户ID）
+    const existingBookmark = await db.query.bookmarks.findFirst({
+      where: (bookmarks, { and, eq }) => and(
+        eq(bookmarks.url, bookmark.url),
+        eq(bookmarks.userId, userId)
+      ),
+      columns: {
+        id: true,
+      },
+    })
+
+    if (existingBookmark) {
+      return {
+        success: false,
+        message: "Bookmark already exists",
+        error: {
+          code: "DUPLICATE_BOOKMARK",
+          details: "A bookmark with this URL already exists"
+        }
+      }
+    }
+
+    // 创建书签
+    const [createdBookmark] = await db.insert(bookmarks).values({
+      userId,
+      url: bookmark.url,
+      title: bookmark.title,
+      description: bookmark.description,
+    }).returning()
+
+    // 创建书签和标签的关联
+    await db.insert(bookmarkTags).values(
+      bookmark.tags.map(tagId => ({
+        bookmarkId: createdBookmark.id,
+        tagId,
+      }))
+    )
+
+    revalidatePath('/')
+    
+    return {
+      success: true,
+      data: createdBookmark,
+      message: 'Bookmark created successfully!'
+    }
+  } catch (e) {
+    console.error("Failed to create bookmark:", e)
+    return {
+      success: false,
+      message: 'Failed to create bookmark',
+      error: {
+        code: "DATABASE_ERROR",
+        details: e instanceof Error ? e.message : "Unknown error occurred"
+      }
+    }
+  }
+}
+
+export const getBookmarksByTag = async (tagId: string) => {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return []
+    }
+
+    const foundBookmarks = await db
+      .select()
+      .from(bookmarkTags)
+      .innerJoin(bookmarks, eq(bookmarkTags.bookmarkId, bookmarks.id))
+      .where(eq(bookmarkTags.tagId, tagId))
+      .orderBy(desc(bookmarkTags.createdAt))
+
+    return foundBookmarks.map(bt => bt.bookmark)
+  } catch (e) {
+    console.error("Failed to get bookmarks by tag:", e)
+    return []
+  }
+}
+
+export const getBookmarkTags = async (bookmarkId: string) => {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return []
+    }
+
+    const foundTags = await db
+      .select()
+      .from(bookmarkTags)
+      .innerJoin(tags, eq(bookmarkTags.tagId, tags.id))
+      .where(eq(bookmarkTags.bookmarkId, bookmarkId))
+      .orderBy(desc(bookmarkTags.createdAt))
+
+    return foundTags.map(bt => bt.tag.id)
+  } catch (e) {
+    console.error("Failed to get bookmark tags:", e)
+    return []
+  }
+}
+
+export const updateBookmark = async (userId: string, bookmarkId: string, bookmark: BookmarkFormData): Promise<ActionResponse> => {
+  try {
+    // 检查书签是否存在且属于当前用户
+    const existingBookmark = await db.query.bookmarks.findFirst({
+      where: (bookmarks, { and, eq }) => and(
+        eq(bookmarks.id, bookmarkId),
+        eq(bookmarks.userId, userId)
+      ),
+      columns: {
+        id: true,
+      },
+    })
+
+    if (!existingBookmark) {
+      return {
+        success: false,
+        message: "Bookmark not found",
+        error: {
+          code: "BOOKMARK_NOT_FOUND",
+          details: "The bookmark you are trying to update does not exist"
+        }
+      }
+    }
+
+    // 检查是否已存在相同URL的书签（基于用户ID，排除当前书签）
+    const duplicateBookmark = await db.query.bookmarks.findFirst({
+      where: (bookmarks, { and, eq, ne }) => and(
+        eq(bookmarks.url, bookmark.url),
+        eq(bookmarks.userId, userId),
+        ne(bookmarks.id, bookmarkId)
+      ),
+      columns: {
+        id: true,
+      },
+    })
+
+    if (duplicateBookmark) {
+      return {
+        success: false,
+        message: "Bookmark already exists",
+        error: {
+          code: "DUPLICATE_BOOKMARK",
+          details: "A bookmark with this URL already exists"
+        }
+      }
+    }
+
+    // 更新书签
+    await db.update(bookmarks)
+      .set({
+        title: bookmark.title,
+        url: bookmark.url,
+        description: bookmark.description,
+        updatedAt: new Date(),
+      })
+      .where(eq(bookmarks.id, bookmarkId))
+
+    // 更新书签和标签的关联
+    // 1. 删除旧的关联
+    await db.delete(bookmarkTags)
+      .where(eq(bookmarkTags.bookmarkId, bookmarkId))
+
+    // 2. 创建新的关联
+    if (bookmark.tags.length > 0) {
+      await db.insert(bookmarkTags).values(
+        bookmark.tags.map(tagId => ({
+          bookmarkId,
+          tagId,
+        }))
+      )
+    }
+
+    revalidatePath('/')
+    
+    return {
+      success: true,
+      message: 'Bookmark updated successfully!'
+    }
+  } catch (e) {
+    console.error("Failed to update bookmark:", e)
+    return {
+      success: false,
+      message: 'Failed to update bookmark',
       error: {
         code: "DATABASE_ERROR",
         details: e instanceof Error ? e.message : "Unknown error occurred"

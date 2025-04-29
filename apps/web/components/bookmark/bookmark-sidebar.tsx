@@ -22,7 +22,7 @@ export async function BookmarkSidebar() {
   const userTags = userInfo?.id ? await getUserTags(userInfo.id) : []
 
   return (
-    <div className="w-[210px] flex-shrink-0 bg-muted flex flex-col">
+    <div className="w-[210px] flex-shrink-0 .bg-background flex flex-col">
       <div className="p-2">
         <h2 className="font-semibold text-lg">Tags</h2>
       </div>

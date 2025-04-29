@@ -2,32 +2,36 @@
 
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button-loading"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Combobox } from "@/components/ui/combobox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-
-const bookmarkSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  url: z.string().url("Please enter a valid URL"),
-  description: z.string().optional(),
-  tags: z.array(z.string()).min(1, "Please select tag")
-})
-
-export type BookmarkFormData = z.infer<typeof bookmarkSchema>
+import { Loader2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { toast } from "sonner"
+import { bookmarkSchema, type BookmarkFormData } from "@/lib/zod-schema"
 
 type BookmarkDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   isEditing: boolean
-  onSubmit?: (data: BookmarkFormData) => void
+  onSubmit?: (data: BookmarkFormData) => Promise<void>
   initialData?: BookmarkFormData
+  availableTags?: { id: string; name: string }[]
 }
 
-export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initialData }: BookmarkDialogProps) {
+export function BookmarkDialog({ 
+  open, 
+  onOpenChange, 
+  isEditing, 
+  onSubmit, 
+  initialData,
+  availableTags = []
+}: BookmarkDialogProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const defaultValues: BookmarkFormData = {
     title: "",
     url: "",
@@ -40,9 +44,27 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
     defaultValues: initialData || defaultValues,
   })
 
-  const handleSubmit: SubmitHandler<BookmarkFormData> = (data) => {
-    onSubmit?.(data)
-    handleClose()
+  // Reset form when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      form.reset(initialData)
+    }
+  }, [initialData, form])
+
+  const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {
+    if (!onSubmit) return
+
+    try {
+      setIsSubmitting(true)
+      await onSubmit(data)
+      toast.success(isEditing ? "Bookmark updated successfully" : "Bookmark created successfully")
+      handleClose()
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.")
+      console.error("Error submitting bookmark:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleClose = () => {
@@ -77,16 +99,14 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
             <FormField
               control={form.control}
               name="title"
-              render={({ field: { onChange, onBlur, value, ref } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Bookmark title" 
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      ref={ref}
+                      {...field}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -97,17 +117,15 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
             <FormField
               control={form.control}
               name="url"
-              render={({ field: { onChange, onBlur, value, ref } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>URL</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="https://example.com" 
                       type="url" 
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      ref={ref}
+                      {...field}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -118,16 +136,14 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
             <FormField
               control={form.control}
               name="description"
-              render={({ field: { onChange, onBlur, value, ref } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Brief description" 
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value || ""}
-                      ref={ref}
+                      {...field}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -138,14 +154,15 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
             <FormField
               control={form.control}
               name="tags"
-              render={({ field: { onChange, value } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tags</FormLabel>
                   <FormControl>
                     <Combobox
-                      value={value}
-                      onChange={onChange}
-                      options={[{ id: "1", name: "Tag 1" }, { id: "2", name: "Tag 2" }]}
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={availableTags}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -154,10 +171,21 @@ export function BookmarkDialog({ open, onOpenChange, isEditing, onSubmit, initia
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
-              <Button type="submit">{isEditing ? "Save changes" : "Add bookmark"}</Button>
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+                loading={isSubmitting}
+              >
+                {isEditing ? "Save changes" : "Add bookmark"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

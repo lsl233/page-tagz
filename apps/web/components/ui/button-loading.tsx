@@ -9,7 +9,7 @@ export interface ButtonLoadingProps extends ShadcnButtonProps {
   loading?: boolean;
 }
 
-export const ButtonLoading: React.FC<ButtonLoadingProps> = ({
+export const Button: React.FC<ButtonLoadingProps> = ({
   children,
   loading,
   className,
@@ -36,4 +36,4 @@ export const ButtonLoading: React.FC<ButtonLoadingProps> = ({
   );
 };
 
-ButtonLoading.displayName = "ButtonLoading";
+Button.displayName = "Button";

@@ -2,11 +2,15 @@ import { NextResponse } from "next/server"
 import { getBookmarkTags } from "@/lib/actions"
 import { auth } from "@/auth"
 
+type Params = Promise<{ id: string }>
+
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  segmentData: { params: Params }
 ) {
   try {
+    const params = await segmentData.params
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })

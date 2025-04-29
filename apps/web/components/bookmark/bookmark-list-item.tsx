@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import { useTagContext } from "@/contexts/tag-context"
 import { useSession } from "next-auth/react"
 import { updateBookmark } from "@/lib/actions"
-import { LuLink } from "react-icons/lu";
+import { Favicon } from "@/components/ui/favicon"
 
 
 export type BookmarkItemProps = typeof bookmarks.$inferSelect & {
@@ -95,8 +95,8 @@ export function BookmarkItem({
       >
         <div className="p-3 flex gap-3 items-center">
           <a href={url} target="_blank" rel="noopener noreferrer" className="flex flex-1 gap-3 items-center">
-            <div className={`${iconBg} h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0`}>
-              {icon ? icon : <LuLink className="h-4 w-4" />}
+            <div className="h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Favicon url={url} icon={icon} size={16} />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-sm line-clamp-1">{title}</h3>

@@ -26,7 +26,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null)
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [userTags, setUserTags] = useState<Tag[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchBookmarks = async () => {
     if (selectedTagId) {

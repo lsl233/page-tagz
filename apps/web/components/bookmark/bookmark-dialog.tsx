@@ -96,25 +96,7 @@ export function BookmarkDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Bookmark title" 
-                      {...field}
-                      disabled={isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
+          <FormField
               control={form.control}
               name="url"
               render={({ field }) => (
@@ -124,6 +106,24 @@ export function BookmarkDialog({
                     <Input 
                       placeholder="https://example.com" 
                       type="url" 
+                      {...field}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Bookmark title" 
                       {...field}
                       disabled={isSubmitting}
                     />

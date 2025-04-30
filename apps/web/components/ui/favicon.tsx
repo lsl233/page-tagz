@@ -2,7 +2,6 @@
 
 import { LuLink } from "react-icons/lu"
 import { useEffect, useState } from "react"
-import Image from "next/image"
 
 interface FaviconProps {
   url?: string
@@ -57,7 +56,7 @@ export function Favicon({ url, icon, className = "", size = 16 }: FaviconProps) 
   // 1. 如果有 icon，直接使用
   if (icon) {
     return (
-      <Image
+      <img
         src={icon}
         alt="favicon"
         width={size}
@@ -71,7 +70,7 @@ export function Favicon({ url, icon, className = "", size = 16 }: FaviconProps) 
   // 2. 如果有 faviconUrl，使用提取的 favicon
   if (faviconUrl && !error) {
     return (
-      <Image
+      <img
         src={faviconUrl}
         alt="favicon"
         width={size}

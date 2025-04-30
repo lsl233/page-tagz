@@ -8,7 +8,7 @@ import { pgTable, text, integer, boolean, timestamp, primaryKey, uuid, unique } 
 //   email: text('email').unique().notNull(),
 //   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
 // });
- 
+
 export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
@@ -18,7 +18,7 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
 })
- 
+
 export const accounts = pgTable(
   "account",
   {
@@ -44,7 +44,7 @@ export const accounts = pgTable(
     },
   ]
 )
- 
+
 export const sessions = pgTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
@@ -52,7 +52,7 @@ export const sessions = pgTable("session", {
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 })
- 
+
 export const verificationTokens = pgTable(
   "verificationToken",
   {
@@ -68,7 +68,7 @@ export const verificationTokens = pgTable(
     },
   ]
 )
- 
+
 export const authenticators = pgTable(
   "authenticator",
   {
@@ -103,6 +103,7 @@ export const bookmarks = pgTable('bookmark', {
   description: text('description'),
   icon: text('icon'),
   iconBg: text('icon_bg'),
+  clickCount: integer('click_count').default(0).notNull(),
   createdAt: timestamp('created_at')
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

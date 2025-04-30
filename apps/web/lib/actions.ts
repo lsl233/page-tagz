@@ -368,3 +368,50 @@ export const updateBookmark = async (userId: string, bookmarkId: string, bookmar
     }
   }
 }
+
+export const incrementBookmarkClickCount = async (bookmarkId: string): Promise<ActionResponse> => {
+  try {
+    // 查找书签
+    const bookmark = await db.query.bookmarks.findFirst({
+      where: eq(bookmarks.id, bookmarkId),
+      columns: {
+        id: true,
+        clickCount: true,
+      },
+    })
+
+    if (!bookmark) {
+      return {
+        success: false,
+        message: "Bookmark not found",
+        error: {
+          code: "BOOKMARK_NOT_FOUND",
+          details: "The bookmark you are trying to update does not exist"
+        }
+      }
+    }
+
+    // 更新点击次数
+    await db.update(bookmarks)
+      .set({
+        clickCount: (bookmark.clickCount || 0) + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(bookmarks.id, bookmarkId))
+
+    return {
+      success: true,
+      message: 'Bookmark click count updated successfully'
+    }
+  } catch (e) {
+    console.error("Failed to increment bookmark click count:", e)
+    return {
+      success: false,
+      message: 'Failed to update bookmark click count',
+      error: {
+        code: "DATABASE_ERROR",
+        details: e instanceof Error ? e.message : "Unknown error occurred"
+      }
+    }
+  }
+}

@@ -78,6 +78,21 @@ export function BookmarkItem({
     return Promise.resolve({ success: true, message: "Bookmark deleted successfully" })
   }
 
+  const handleBookmarkClick = async (e: React.MouseEvent) => {
+    try {
+      fetch(`/api/bookmarks/${id}/click`, { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(error => {
+        console.error("Error recording bookmark click:", error)
+      })
+    } catch (error) {
+      console.error("Error setting up click tracking:", error)
+    }
+  }
+
   return (
     <>
       <DeleteDialog
@@ -93,20 +108,26 @@ export function BookmarkItem({
           viewMode === "grid" ? "" : "mb-4 mx-4"
         )}
       >
-        <div className="p-3 flex gap-3 items-center">
-          <a href={url} target="_blank" rel="noopener noreferrer" className="flex flex-1 gap-3 items-center">
+        <div className="p-3 flex gap-2 items-center">
+          <a 
+            href={url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex flex-1 gap-3 items-center"
+            onClick={handleBookmarkClick}
+          >
             <div className="h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <Favicon url={url} icon={icon} size={16} />
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
-              <div className="text-xs text-muted-foreground line-clamp-1">{url}</div>
+            <div className="flex-1 overflow-hidden">
+              <h3 className="font-medium text-sm line-clamp-1 break-all">{title}</h3>
+              <div className="text-xs text-muted-foreground line-clamp-1 break-all">{url}</div>
             </div>
           </a>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-800 -mr-4 outline-none focus:outline-none hover:bg-transparent focus:border-none flex-shrink-0">
-                <FiMoreVertical className="h-auto" />
+              <Button variant="ghost" size="icon" className="-mr-2 w-auto h-auto text-gray-400 hover:text-gray-800 outline-none focus:outline-none hover:bg-transparent focus:border-none flex-shrink-0">
+                <FiMoreVertical />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1" align="end">

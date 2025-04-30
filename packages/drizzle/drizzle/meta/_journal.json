@@ -15,6 +15,13 @@
       "when": 1745993497758,
       "tag": "0001_sad_korath",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746052133156,
+      "tag": "0002_square_diamondback",
+      "breakpoints": true
     }
   ]
 }

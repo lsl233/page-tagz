@@ -4,14 +4,27 @@ import type React from "react"
 import { BookmarkItem } from "@/components/bookmark/bookmark-list-item"
 import { useTagContext } from "@/contexts/tag-context"
 import { FaCircleNotch } from "react-icons/fa6";
-
+import { useAuth } from "@/contexts/auth-context";
 
 type BookmarkListProps = {
   viewMode: "grid" | "list"
 }
 
 export function BookmarkList({ viewMode }: BookmarkListProps) {
-  const { filteredBookmarks, isLoading } = useTagContext()
+  const { isAuthenticated } = useAuth()
+  const { filteredBookmarks, isLoading, userTags } = useTagContext()
+
+  // if (!selectedTagId) {
+  //   return null
+  // }
+  
+  if (!isAuthenticated) {
+    return (
+      <div className="col-span-full text-center p-8 text-muted-foreground">
+        Please login to view your bookmarks
+      </div>
+    )
+  }
 
   return (
     <>
@@ -29,7 +42,7 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
         >
           {filteredBookmarks.length === 0 ? (
             <div className="col-span-full text-center p-8 text-muted-foreground">
-              No bookmarks found for this tag
+              {userTags.length > 0 ? "Please add a bookmark to get started" : "Please create a tag to get started"}
             </div>
           ) : (
             filteredBookmarks.map((bookmark) => (

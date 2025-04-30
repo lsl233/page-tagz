@@ -7,6 +7,7 @@ import { TagProvider } from "@/contexts/tag-context"
 import { cn } from "@/lib/utils"
 
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/contexts/auth-context";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -34,7 +35,9 @@ export default function RootLayout({
         {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
           <TagProvider>
             <SessionProvider>
-              {children}
+              <AuthProvider>
+                {children}
+              </AuthProvider>
               <Toaster position="top-center" />
             </SessionProvider>
           </TagProvider>

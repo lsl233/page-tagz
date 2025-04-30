@@ -42,10 +42,10 @@ export async function BookmarkSidebar() {
             <Avatar>
               <AvatarImage src={session.user?.image ?? ""} />
               <AvatarFallback>
-                {session.user?.name?.charAt(0)}
+                {session.user?.email?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <span className="ml-2 text-sm text-muted-foreground">{session.user?.name}</span>
+            <span className="ml-2 text-sm text-muted-foreground">{session.user?.email}</span>
           </div>
         ) : (
           <LoginButton />

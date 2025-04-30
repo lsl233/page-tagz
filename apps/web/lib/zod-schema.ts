@@ -39,3 +39,19 @@ export const createBookmarkSchema = bookmarkSchema
 export const updateBookmarkSchema = bookmarkSchema.extend({
   id: z.string(),
 })
+
+
+export const registerSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+})
+
+export type RegisterFormData = z.infer<typeof registerSchema>
+
+export const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  rememberMe: z.boolean().optional(),
+})
+
+export type LoginFormData = z.infer<typeof loginSchema>

@@ -59,6 +59,8 @@ export function TagProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (selectedTagId) {
       fetchBookmarks()
+    } else {
+      setIsLoading(false)
     }
   }, [selectedTagId])
 

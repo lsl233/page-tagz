@@ -11,46 +11,33 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { signIn } from "next-auth/react"
 import { SiGithub } from "react-icons/si"
+import { toast } from "sonner"
+import { loginSchema, registerSchema, type LoginFormData, type RegisterFormData } from "@/lib/zod-schema"
+import { loginWithCredentials, registerUser } from "@/lib/auth-actions"
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  rememberMe: z.boolean(),
-})
-
-const registerSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+// Extended schema with confirmPassword for the form
+const registerFormSchema = registerSchema.extend({
   confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don\'t match",
-  path: ["confirmPassword"],
+}).refine((data) => {
+  console.log(data, 'registerFormSchema')
+  return data.password === data.confirmPassword
+}, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],  
 })
 
-type LoginFormData = {
-  email: string
-  password: string
-  rememberMe: boolean
-}
-
-type RegisterFormData = {
-  email: string
-  username: string
-  password: string
-  confirmPassword: string
-}
+// Type for the form data
+type RegisterFormValues = z.infer<typeof registerFormSchema>
 
 type LoginDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onLogin?: (data: LoginFormData) => void
-  onRegister?: (data: RegisterFormData) => void
 }
 
-export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDialogProps) {
+export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [isRegister, setIsRegister] = useState(false)
   const [isLoggingInWithGithub, setIsLoggingInWithGithub] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const loginForm = useForm<LoginFormData>({
     defaultValues: {
@@ -61,14 +48,13 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
     resolver: zodResolver(loginSchema),
   })
 
-  const registerForm = useForm<RegisterFormData>({
+  const registerForm = useForm<RegisterFormValues>({
     defaultValues: {
       email: "",
-      username: "",
       password: "",
       confirmPassword: "",
     },
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerFormSchema),
   })
 
   const handleClose = () => {
@@ -77,14 +63,50 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
     onOpenChange(false)
   }
 
-  const handleLoginSubmit = (data: LoginFormData) => {
-    onLogin?.(data)
-    handleClose()
+  const handleLoginSubmit = async (data: LoginFormData) => {
+    setIsSubmitting(true)
+    try {
+      const result = await loginWithCredentials(data)
+      
+      if (result.success) {
+        toast.success(result.message)
+        handleClose()
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      toast.error("Login failed. Please try again.")
+      console.error("Login error:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleRegisterSubmit = (data: RegisterFormData) => {
-    onRegister?.(data)
-    handleClose()
+  const handleRegisterSubmit = async (data: RegisterFormValues) => {
+    setIsSubmitting(true)
+    try {
+      // Remove confirmPassword from data
+      const { confirmPassword, ...registerData } = data
+      
+      const result = await registerUser(registerData)
+      
+      if (result.success) {
+        toast.success(result.message)
+        // Automatically log in after successful registration
+        await loginWithCredentials({ 
+          email: registerData.email, 
+          password: registerData.password 
+        })
+        handleClose()
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      toast.error("Registration failed. Please try again.")
+      console.error("Registration error:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleGithubLogin = () => {
@@ -125,7 +147,7 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={registerForm.control}
                 name="username"
                 render={({ field }) => (
@@ -137,7 +159,7 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
 
               <FormField
                 control={registerForm.control}
@@ -168,7 +190,7 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
               />
 
               <DialogFooter className="flex-col sm:flex-col gap-2">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" loading={isSubmitting}>
                   Create Account
                 </Button>
                 <div className="text-center text-sm">
@@ -240,11 +262,11 @@ export function LoginDialog({ open, onOpenChange, onLogin, onRegister }: LoginDi
               </div>
 
               <DialogFooter className="flex-col sm:flex-col gap-2">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" loading={isSubmitting}>
                   Login
                 </Button>
                 <Button onClick={handleGithubLogin} loading={isLoggingInWithGithub} type="button" className="w-full" variant="outline">
-                  <SiGithub className="w-4 h-4" />
+                  <SiGithub className="w-4 h-4 mr-2" />
                   Login with GitHub
                 </Button>
                 <div className="text-center text-sm">

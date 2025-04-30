@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { cn, recordBookmarkClick } from "@/lib/utils"
+import { cn } from "@/lib/utils"
+import { recordBookmarkClick, fetchBookmarkTags } from "@/lib/api"
 import { FiMoreVertical } from "react-icons/fi"
 import { Button } from "@/components/ui/button"
 import { DeleteDialog } from "@/components/ui/delete-dialog"
@@ -41,11 +42,7 @@ export function BookmarkItem({
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const response = await fetch(`/api/bookmarks/${id}/tags`)
-        if (!response.ok) {
-          throw new Error("Failed to fetch bookmark tags")
-        }
-        const tags = await response.json()
+        const tags = await fetchBookmarkTags(id)
         setCurrentTags(tags)
       } catch (error) {
         console.error("Error fetching bookmark tags:", error)

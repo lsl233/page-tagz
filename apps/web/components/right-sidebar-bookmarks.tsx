@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Favicon } from "@/components/ui/favicon"
-import { recordBookmarkClick } from "@/lib/utils"
+import { recordBookmarkClick } from "@/lib/api"
 
 type BookmarkProps = {
   id: string

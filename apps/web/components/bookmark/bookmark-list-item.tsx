@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { cn } from "@/lib/utils"
+import { cn, recordBookmarkClick } from "@/lib/utils"
 import { FiMoreVertical } from "react-icons/fi"
 import { Button } from "@/components/ui/button"
 import { DeleteDialog } from "@/components/ui/delete-dialog"
@@ -80,14 +80,7 @@ export function BookmarkItem({
 
   const handleBookmarkClick = async (e: React.MouseEvent) => {
     try {
-      fetch(`/api/bookmarks/${id}/click`, { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).catch(error => {
-        console.error("Error recording bookmark click:", error)
-      })
+      await recordBookmarkClick(id)
     } catch (error) {
       console.error("Error setting up click tracking:", error)
     }

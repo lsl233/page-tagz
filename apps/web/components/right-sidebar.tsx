@@ -1,106 +1,18 @@
 import type React from "react"
-import { Github, NetworkIcon as Netflix, ShoppingBag } from "lucide-react"
 import { RightSidebarActions } from "@/components/right-sidebar-actions"
-import { getUserTags } from "@/lib/actions"
-
-type RecentItem = {
-  title: string
-  icon: React.ReactNode
-  iconBg: string
-  time: string
-}
-
-type FrequentItem = {
-  title: string
-  icon: React.ReactNode
-  iconBg: string
-  visits: number
-}
+import { getUserTags, getMostClickedBookmarks } from "@/lib/actions"
+import { RightSidebarBookmarks } from "@/components/right-sidebar-bookmarks"
 
 export async function RightSidebar() {
-
   const userTags = await getUserTags()
-
-  const recentItems: RecentItem[] = [
-    {
-      title: "GitHub",
-      icon: <Github className="h-4 w-4 text-black" />,
-      iconBg: "bg-blue-100",
-      time: "10 minutes ago",
-    },
-    {
-      title: "React 官方文档",
-      icon: <div className="h-4 w-4 flex items-center justify-center text-blue-600">⚛</div>,
-      iconBg: "bg-blue-100",
-      time: "1 hour ago",
-    },
-    {
-      title: "MDN Web 文档",
-      icon: <div className="h-4 w-4 flex items-center justify-center text-green-600">M</div>,
-      iconBg: "bg-green-100",
-      time: "3 hours ago",
-    },
-  ]
-
-  const frequentItems: FrequentItem[] = [
-    {
-      title: "GitHub",
-      icon: <Github className="h-4 w-4 text-black" />,
-      iconBg: "bg-blue-100",
-      visits: 152,
-    },
-    {
-      title: "Netflix",
-      icon: <Netflix className="h-4 w-4 text-red-600" />,
-      iconBg: "bg-purple-100",
-      visits: 98,
-    },
-    {
-      title: "京东",
-      icon: <ShoppingBag className="h-4 w-4 text-red-600" />,
-      iconBg: "bg-red-100",
-      visits: 76,
-    },
-  ]
+  const frequentBookmarks = await getMostClickedBookmarks(3)
 
   return (
     <div className="w-[250px] flex-shrink-0 bg-background flex flex-col">
       <RightSidebarActions userTags={userTags} />
 
       <div className="flex-1 overflow-auto p-4">
-        <section className="mb-6">
-          <h3 className="text-sm font-medium mb-3">Recently Visited</h3>
-          <div className="space-y-3">
-            {recentItems.map((item, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div className={`${item.iconBg} h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0`}>
-                  {item.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium">{item.title}</div>
-                  <div className="text-xs text-muted-foreground">{item.time}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mb-6">
-          <h3 className="text-sm font-medium mb-3">Frequently Used</h3>
-          <div className="space-y-3">
-            {frequentItems.map((item, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div className={`${item.iconBg} h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0`}>
-                  {item.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium">{item.title}</div>
-                  <div className="text-xs text-muted-foreground">{item.visits} visits</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <RightSidebarBookmarks bookmarks={frequentBookmarks} />
 
         <section>
           <h3 className="text-sm font-medium mb-3">Tools</h3>

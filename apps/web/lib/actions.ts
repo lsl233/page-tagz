@@ -415,3 +415,23 @@ export const incrementBookmarkClickCount = async (bookmarkId: string): Promise<A
     }
   }
 }
+
+export const getMostClickedBookmarks = async (limit: number = 3) => {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return []
+    }
+
+    const mostClickedBookmarks = await db.query.bookmarks.findMany({
+      where: eq(bookmarks.userId, session.user.id),
+      orderBy: [desc(bookmarks.clickCount)],
+      limit: limit,
+    })
+
+    return mostClickedBookmarks
+  } catch (e) {
+    console.error("Failed to get most clicked bookmarks:", e)
+    return []
+  }
+}

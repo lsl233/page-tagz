@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server"
 import { incrementBookmarkClickCount } from "@/lib/actions"
 
-type RouteParams = {
-  params: {
-    id: string
-  }
-}
-
 export async function POST(
   request: Request,
-  context: RouteParams
+  segmentData: { params: Promise<{ id: string }> }
 ) {
   try {
-    const bookmarkId = context.params.id
+    const params = await segmentData.params
+    const bookmarkId = params.id
     
     const result = await incrementBookmarkClickCount(bookmarkId)
     

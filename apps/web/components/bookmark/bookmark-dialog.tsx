@@ -18,6 +18,7 @@ type BookmarkDialogProps = {
   onOpenChange: (open: boolean) => void
   isEditing: boolean
   onSubmit?: (data: BookmarkFormData) => Promise<void>
+  onSuccess?: (data: BookmarkFormData) => void
   initialData?: BookmarkFormData
   availableTags?: { id: string; name: string }[]
 }
@@ -25,6 +26,7 @@ type BookmarkDialogProps = {
 export function BookmarkDialog({ 
   open, 
   onOpenChange, 
+  onSuccess,
   isEditing, 
   onSubmit, 
   initialData,
@@ -57,7 +59,8 @@ export function BookmarkDialog({
     try {
       setIsSubmitting(true)
       await onSubmit(data)
-      toast.success(isEditing ? "Bookmark updated successfully" : "Bookmark created successfully")
+      // toast.success(isEditing ? "Bookmark updated successfully" : "Bookmark created successfully")
+      onSuccess?.(data)
       handleClose()
     } catch (error) {
       toast.error("Something went wrong. Please try again.")

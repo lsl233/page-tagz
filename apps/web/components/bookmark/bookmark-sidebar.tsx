@@ -22,7 +22,7 @@ export async function BookmarkSidebar() {
   const userTags = userInfo?.id ? await getUserTags(userInfo.id) : []
 
   return (
-    <div className="w-[210px] flex-shrink-0 .bg-background flex flex-col">
+    <div className="w-[210px] flex-shrink-0 bg-background flex flex-col">
       <div className="p-2">
         <h2 className="font-semibold text-lg">Tags</h2>
       </div>
@@ -30,7 +30,7 @@ export async function BookmarkSidebar() {
         <TagButton />
       </div>
       <div className="flex-1 overflow-auto">
-        <ul className="py-2">
+        <ul className="py-2 px-2 space-y-1">
           {userTags.map((tag) => (
             <TagNavItem key={tag.id} tag={tag} />
           ))}

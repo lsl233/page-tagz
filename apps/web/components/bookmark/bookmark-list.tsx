@@ -1,12 +1,10 @@
 "use client"
 
 import type React from "react"
-import { Github, FileText, NetworkIcon as Netflix, ShoppingBag } from "lucide-react"
 import { BookmarkItem } from "@/components/bookmark/bookmark-list-item"
 import { useTagContext } from "@/contexts/tag-context"
-import { useEffect } from "react"
-import { toast } from "sonner"
-import { fetchBookmarksByTag } from "@/lib/api"
+import { FaCircleNotch } from "react-icons/fa6";
+
 
 type BookmarkListProps = {
   viewMode: "grid" | "list"
@@ -18,8 +16,8 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center p-8">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        <div className="flex flex-col justify-center items-center p-8">
+          <FaCircleNotch className="animate-spin text-muted-foreground" size={24} />
         </div>
       ) : (
         <div

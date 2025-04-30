@@ -9,12 +9,14 @@ import { type BookmarkFormData } from "@/lib/zod-schema"
 import { createBookmark } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
+import { useTagContext } from "@/contexts/tag-context"
 
 export function RightSidebarActions({ userTags }: { userTags: any[] }) {
   const { data: session } = useSession()
   const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [currentBookmark, setCurrentBookmark] = useState<BookmarkFormData | undefined>(undefined)
+  const { fetchBookmarks } = useTagContext()
 
   const handleBookmarkSubmit = async (data: BookmarkFormData) => {
     if (!session?.user?.id) {
@@ -24,9 +26,11 @@ export function RightSidebarActions({ userTags }: { userTags: any[] }) {
 
     const response = await createBookmark(session.user.id, data)
     
+    debugger
     if (response.success) {
       toast.success(response.message)
       setBookmarkDialogOpen(false)
+      fetchBookmarks()
     } else {
       toast.error(response.message)
     }
@@ -51,6 +55,10 @@ export function RightSidebarActions({ userTags }: { userTags: any[] }) {
         isEditing={isEditing}
         onSubmit={handleBookmarkSubmit}
         initialData={currentBookmark}
+        onSuccess={() => {
+          // Refresh bookmarks after successful creation
+          fetchBookmarks()
+        }}
       />
     </div>
   )

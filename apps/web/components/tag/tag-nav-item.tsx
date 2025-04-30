@@ -33,7 +33,7 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
   };
 
   const handleTagClick = () => {
-    setSelectedTagId(selectedTagId === tag.id ? null : tag.id);
+    setSelectedTagId(tag.id);
   };
 
   return (
@@ -58,8 +58,8 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
       <li 
         key={tag.name} 
         className={cn(
-          "flex text-sm items-center gap-1 w-full justify-start pl-2 pr-1 py-2 h-auto cursor-pointer hover:bg-accent",
-          selectedTagId === tag.id && "bg-accent"
+          "flex rounded-md text-sm items-center gap-1 w-full justify-start pl-2 pr-1 py-1.5 h-auto cursor-pointer hover:bg-accent",
+          selectedTagId === tag.id && "bg-gray-100"
         )}
         onClick={handleTagClick}
       >

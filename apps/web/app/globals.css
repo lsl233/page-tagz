@@ -120,18 +120,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* Dropdown Menu Hover Styles */
-@layer components {
-  [data-trigger="hover"] {
-    @apply relative;
-  }
-
-  [data-trigger="hover"] [data-slot="dropdown-menu-content"] {
-    @apply opacity-0 invisible transition-all duration-200;
-  }
-
-  [data-trigger="hover"][data-state="open"] [data-slot="dropdown-menu-content"] {
-    @apply opacity-100 visible;
-  }
-}

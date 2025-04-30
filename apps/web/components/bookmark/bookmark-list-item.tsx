@@ -36,7 +36,7 @@ export function BookmarkItem({
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [currentTags, setCurrentTags] = useState<string[]>([])
-  const { userTags } = useTagContext()
+  const { userTags, fetchBookmarks } = useTagContext()
   const { data: session } = useSession()
 
   useEffect(() => {
@@ -63,6 +63,7 @@ export function BookmarkItem({
     if (response.success) {
       toast.success(response.message)
       setEditOpen(false)
+      fetchBookmarks()
     } else {
       toast.error(response.message)
     }

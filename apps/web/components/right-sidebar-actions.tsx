@@ -26,7 +26,6 @@ export function RightSidebarActions({ userTags }: { userTags: any[] }) {
 
     const response = await createBookmark(session.user.id, data)
     
-    debugger
     if (response.success) {
       toast.success(response.message)
       setBookmarkDialogOpen(false)

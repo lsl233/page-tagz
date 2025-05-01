@@ -6,6 +6,7 @@ import { eq } from "drizzle"
 import { signIn } from "@/auth"
 import bcrypt from "bcryptjs"
 import { LoginFormData, RegisterFormData } from "./zod-schema"
+import { revalidatePath } from "next/cache"
 
 type AuthResponse = {
   success: boolean
@@ -72,17 +73,19 @@ export async function loginWithCredentials(data: LoginFormData): Promise<AuthRes
       email: data.email,
       password: data.password,
     })
+    // console.log("result", result)
+    // if (!result?.ok) {
+    //   return {
+    //     success: false,
+    //     message: "Invalid email or password",
+    //     error: {
+    //       code: "INVALID_CREDENTIALS",
+    //       details: "The email or password you entered is incorrect"
+    //     }
+    //   }
+    // }
 
-    if (!result?.ok) {
-      return {
-        success: false,
-        message: "Invalid email or password",
-        error: {
-          code: "INVALID_CREDENTIALS",
-          details: "The email or password you entered is incorrect"
-        }
-      }
-    }
+    revalidatePath("/")
 
     return {
       success: true,

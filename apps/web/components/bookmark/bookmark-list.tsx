@@ -11,13 +11,21 @@ type BookmarkListProps = {
 }
 
 export function BookmarkList({ viewMode }: BookmarkListProps) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const { filteredBookmarks, isLoading, userTags } = useTagContext()
 
   // if (!selectedTagId) {
   //   return null
   // }
-  
+
+  if (isAuthLoading || isLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center p-8">
+        <FaCircleNotch className="animate-spin text-muted-foreground" size={24} />
+      </div>
+    )
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="col-span-full text-center p-8 text-muted-foreground">
@@ -28,33 +36,27 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
 
   return (
     <>
-      {isLoading ? (
-        <div className="flex flex-col justify-center items-center p-8">
-          <FaCircleNotch className="animate-spin text-muted-foreground" size={24} />
-        </div>
-      ) : (
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4"
-              : "flex flex-col"
-          }
-        >
-          {filteredBookmarks.length === 0 ? (
-            <div className="col-span-full text-center p-8 text-muted-foreground">
-              {userTags.length > 0 ? "Please add a bookmark to get started" : "Please create a tag to get started"}
-            </div>
-          ) : (
-            filteredBookmarks.map((bookmark) => (
-              <BookmarkItem
-                key={bookmark.id}
-                {...bookmark}
-                viewMode={viewMode}
-              />
-            ))
-          )}
-        </div>
-      )}
+      <div
+        className={
+          viewMode === "grid"
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4"
+            : "flex flex-col"
+        }
+      >
+        {filteredBookmarks.length === 0 ? (
+          <div className="col-span-full text-center p-8 text-muted-foreground">
+            {userTags.length > 0 ? "Please add a bookmark to get started" : "Please create a tag to get started"}
+          </div>
+        ) : (
+          filteredBookmarks.map((bookmark) => (
+            <BookmarkItem
+              key={bookmark.id}
+              {...bookmark}
+              viewMode={viewMode}
+            />
+          ))
+        )}
+      </div>
     </>
   )
 }

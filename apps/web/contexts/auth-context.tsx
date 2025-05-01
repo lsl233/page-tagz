@@ -12,12 +12,13 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   githubLogin: () => Promise<void>
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   // Extract user from session if available, ensuring id is always a string
@@ -88,6 +89,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Refresh user session data
+  const refreshUser = async () => {
+    setIsLoading(true)
+    try {
+      await update()
+    } catch (error) {
+      console.error("Error refreshing user session:", error)
+      toast.error("Failed to refresh user data")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -96,7 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         logout,
-        githubLogin
+        githubLogin,
+        refreshUser
       }}
     >
       {children}

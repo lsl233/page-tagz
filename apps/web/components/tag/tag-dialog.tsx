@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { createTagFormSchema, CreateTagForm } from "@/lib/zod-schema"
 import { createTag, updateTag, type ActionResponse } from "@/lib/actions"
-import { useSession } from "next-auth/react"
+import { useAuth } from "@/contexts/auth-context"
 import { toast } from "sonner"
 
 type TagDialogProps = {
@@ -25,7 +25,7 @@ type TagDialogProps = {
 
 export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSuccess, initialData }: TagDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const session = useSession()
+  const { user } = useAuth()
 
   const defaultValues: CreateTagForm = {
     name: "",
@@ -38,7 +38,7 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
   })
 
   const handleSubmit: SubmitHandler<CreateTagForm> = async (data) => {
-    const userId = session.data?.user?.id
+    const userId = user?.id
     if (!userId) {
       toast.error("You must be logged in to perform this action")
       return

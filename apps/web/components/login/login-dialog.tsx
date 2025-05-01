@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button-loading"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -13,17 +13,14 @@ import { signIn } from "next-auth/react"
 import { SiGithub } from "react-icons/si"
 import { toast } from "sonner"
 import { loginSchema, registerSchema, type LoginFormData, type RegisterFormData } from "@/lib/zod-schema"
-import { loginWithCredentials, registerUser } from "@/lib/auth-actions"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
+import { useAuthActions } from "@/hooks/use-auth-actions"
+import { cn } from "@/lib/utils"
 
 // Extended schema with confirmPassword for the form
 const registerFormSchema = registerSchema.extend({
   confirmPassword: z.string(),
-}).refine((data) => {
-  console.log(data, 'registerFormSchema')
-  return data.password === data.confirmPassword
-}, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],  
 })
 
 // Type for the form data
@@ -37,7 +34,9 @@ type LoginDialogProps = {
 export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [isRegister, setIsRegister] = useState(false)
   const [isLoggingInWithGithub, setIsLoggingInWithGithub] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
+  const { refreshUser } = useAuth()
+  const { login, register, isLoading } = useAuthActions()
 
   const loginForm = useForm<LoginFormData>({
     defaultValues: {
@@ -57,6 +56,15 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     resolver: zodResolver(registerFormSchema),
   })
 
+  // Reset forms when switching between login and register
+  useEffect(() => {
+    if (isRegister) {
+      loginForm.reset()
+    } else {
+      registerForm.reset()
+    }
+  }, [isRegister, loginForm, registerForm])
+
   const handleClose = () => {
     loginForm.reset()
     registerForm.reset()
@@ -64,65 +72,55 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   }
 
   const handleLoginSubmit = async (data: LoginFormData) => {
-    setIsSubmitting(true)
-    try {
-      const result = await loginWithCredentials(data)
-      
-      if (result.success) {
-        toast.success(result.message)
-        handleClose()
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      toast.error("Login failed. Please try again.")
-      console.error("Login error:", error)
-    } finally {
-      setIsSubmitting(false)
+    const success = await login(data)
+    await refreshUser()
+    if (success) {
+      handleClose()
     }
   }
 
   const handleRegisterSubmit = async (data: RegisterFormValues) => {
-    setIsSubmitting(true)
-    try {
-      // Remove confirmPassword from data
-      const { confirmPassword, ...registerData } = data
-      
-      const result = await registerUser(registerData)
-      
-      if (result.success) {
-        toast.success(result.message)
-        // Automatically log in after successful registration
-        await loginWithCredentials({ 
-          email: registerData.email, 
-          password: registerData.password 
-        })
-        handleClose()
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      toast.error("Registration failed. Please try again.")
-      console.error("Registration error:", error)
-    } finally {
-      setIsSubmitting(false)
+    // Remove confirmPassword from data
+    const { confirmPassword, ...registerData } = data
+
+    const success = await register(registerData)
+    if (success) {
+      handleClose()
     }
   }
 
-  const handleGithubLogin = () => {
+  const handleGithubLogin = async () => {
     setIsLoggingInWithGithub(true)
-    signIn("github")
+    try {
+      await signIn("github", { redirect: false })
+      await refreshUser()
+      router.refresh()
+      handleClose()
+    } catch (error) {
+      console.error("GitHub login error:", error)
+      toast.error("GitHub login failed")
+    } finally {
+      setIsLoggingInWithGithub(false)
+    }
+  }
+
+  const switchToRegister = () => {
+    setIsRegister(true)
+  }
+
+  const switchToLogin = () => {
+    setIsRegister(false)
   }
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onOpenChange={(open) => {
         if (!open) handleClose()
       }}
       modal={true}
     >
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[400px]"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
@@ -130,16 +128,20 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         <DialogHeader>
           <DialogTitle>{isRegister ? "Create Account" : "Login to Your Account"}</DialogTitle>
         </DialogHeader>
-        {isRegister ? (
+        <div className="">
           <Form {...registerForm}>
-            <form onSubmit={registerForm.handleSubmit(handleRegisterSubmit)} className="space-y-4">
+            <form onSubmit={registerForm.handleSubmit(handleRegisterSubmit)} className={cn("space-y-4", "w-full", "shrink-0", {
+              "hidden": !isRegister,
+              "block": isRegister,
+            })}>
               <FormField
                 control={registerForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email, {field.value}</FormLabel>
                     <FormControl>
+
                       <Input placeholder="your@email.com" type="email" {...field} />
                     </FormControl>
                     <FormMessage />
@@ -147,28 +149,14 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 )}
               />
 
-              {/* <FormField
-                control={registerForm.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Choose a username" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
-
               <FormField
                 control={registerForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Password, {field.value}</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" {...field} new-password="true" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,9 +168,9 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel>Confirm Password, {field.value}</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" {...field} new-password="true" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -190,7 +178,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
               />
 
               <DialogFooter className="flex-col sm:flex-col gap-2">
-                <Button type="submit" className="w-full" loading={isSubmitting}>
+                <Button type="submit" className="w-full" loading={isLoading}>
                   Create Account
                 </Button>
                 <div className="text-center text-sm">
@@ -199,7 +187,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                     variant="link"
                     className="p-0 h-auto text-sm ml-1"
                     type="button"
-                    onClick={() => setIsRegister(false)}
+                    onClick={switchToLogin}
                   >
                     Login
                   </Button>
@@ -207,9 +195,11 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
               </DialogFooter>
             </form>
           </Form>
-        ) : (
           <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className="space-y-4">
+            <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className={cn("space-y-4", "w-full", "shrink-0", {
+              "hidden": isRegister,
+              "block": !isRegister,
+            })}>
               <FormField
                 control={loginForm.control}
                 name="email"
@@ -231,7 +221,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" {...field} current-password="true" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -245,8 +235,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                   render={({ field }) => (
                     <FormItem className="flex items-center space-x-2">
                       <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
+                        <Checkbox
+                          checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
@@ -262,7 +252,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
               </div>
 
               <DialogFooter className="flex-col sm:flex-col gap-2">
-                <Button type="submit" className="w-full" loading={isSubmitting}>
+                <Button type="submit" className="w-full" loading={isLoading}>
                   Login
                 </Button>
                 <Button onClick={handleGithubLogin} loading={isLoggingInWithGithub} type="button" className="w-full" variant="outline">
@@ -275,7 +265,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                     variant="link"
                     className="p-0 h-auto text-sm ml-1"
                     type="button"
-                    onClick={() => setIsRegister(true)}
+                    onClick={switchToRegister}
                   >
                     Register
                   </Button>
@@ -283,7 +273,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
               </DialogFooter>
             </form>
           </Form>
-        )}
+        </div>
+
       </DialogContent>
     </Dialog>
   )

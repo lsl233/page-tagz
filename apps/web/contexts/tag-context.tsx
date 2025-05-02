@@ -18,6 +18,7 @@ type TagContextType = {
   userTags: Tag[]
   fetchBookmarks: () => Promise<void>
   removeBookmark: (bookmarkId: string) => void
+  addBookmark: (bookmark: Bookmark, tagIds?: string[]) => void
   isLoading: boolean
 }
 
@@ -72,6 +73,14 @@ export function TagProvider({ children }: { children: ReactNode }) {
     setFilteredBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
   }
 
+  // 用于乐观更新的添加书签方法
+  const addBookmark = (bookmark: Bookmark, tagIds?: string[]) => {
+    // 如果当前选中的标签ID与书签关联的标签匹配，则添加到列表
+    if (selectedTagId && tagIds && tagIds.includes(selectedTagId)) {
+      setFilteredBookmarks(prev => [bookmark, ...prev])
+    }
+  }
+
   return (
     <TagContext.Provider value={{ 
       selectedTagId, 
@@ -81,6 +90,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
       userTags,
       fetchBookmarks,
       removeBookmark,
+      addBookmark,
       isLoading
     }}>
       {children}

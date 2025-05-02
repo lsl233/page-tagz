@@ -36,7 +36,7 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
         // 乐观更新：立即从 UI 中移除书签
         removeBookmark(id)
         // 已经通过乐观更新移除了书签，设置 silent 来避免额外 toast
-        return { ...response, silent: true }
+        return response
       } else {
         // 删除失败，恢复 UI 状态
         toast.error(response.message)

@@ -45,7 +45,6 @@ export function DeleteDialog({
       if (response.success && !response.silent) {
         toast.success(response.message)
       }
-      
       onSuccess?.()
     } catch (e) {
       toast.error("An unexpected error occurred")

@@ -435,3 +435,54 @@ export const getMostClickedBookmarks = async (limit: number = 3) => {
     return []
   }
 }
+
+export const deleteBookmark = async (userId: string, bookmarkId: string): Promise<ActionResponse> => {
+  try {
+    // 检查书签是否存在且属于当前用户
+    const existingBookmark = await db.query.bookmarks.findFirst({
+      where: (bookmarks, { and, eq }) => and(
+        eq(bookmarks.id, bookmarkId),
+        eq(bookmarks.userId, userId)
+      ),
+      columns: {
+        id: true,
+      },
+    })
+
+    if (!existingBookmark) {
+      return {
+        success: false,
+        message: "Bookmark not found",
+        error: {
+          code: "BOOKMARK_NOT_FOUND",
+          details: "The bookmark you are trying to delete does not exist or you don't have permission to delete it"
+        }
+      }
+    }
+
+    // 首先删除书签和标签的关联
+    await db.delete(bookmarkTags)
+      .where(eq(bookmarkTags.bookmarkId, bookmarkId))
+
+    // 然后删除书签
+    await db.delete(bookmarks)
+      .where(eq(bookmarks.id, bookmarkId))
+
+    revalidatePath('/')
+    
+    return {
+      success: true,
+      message: 'Bookmark deleted successfully!'
+    }
+  } catch (e) {
+    console.error("Failed to delete bookmark:", e)
+    return {
+      success: false,
+      message: 'Failed to delete bookmark',
+      error: {
+        code: "DATABASE_ERROR",
+        details: e instanceof Error ? e.message : "Unknown error occurred"
+      }
+    }
+  }
+}

@@ -17,6 +17,7 @@ type TagContextType = {
   setFilteredBookmarks: (bookmarks: Bookmark[]) => void
   userTags: Tag[]
   fetchBookmarks: () => Promise<void>
+  removeBookmark: (bookmarkId: string) => void
   isLoading: boolean
 }
 
@@ -33,6 +34,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
       setIsLoading(true)
       try {
         const bookmarks = await fetchBookmarksByTag(selectedTagId)
+        console.log("bookmarks", bookmarks)
         setFilteredBookmarks(bookmarks)
       } catch (error) {
         console.error("Error fetching bookmarks:", error)
@@ -52,6 +54,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
       if (tags.length > 0) {
         setSelectedTagId(tags[0].id)
       }
+      setIsLoading(false)
     }
     initializeTags()
   }, [])
@@ -60,9 +63,14 @@ export function TagProvider({ children }: { children: ReactNode }) {
     if (selectedTagId) {
       fetchBookmarks()
     } else {
-      setIsLoading(false)
+      // setIsLoading(false)
     }
   }, [selectedTagId])
+
+  // 用于乐观更新的删除书签方法
+  const removeBookmark = (bookmarkId: string) => {
+    setFilteredBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
+  }
 
   return (
     <TagContext.Provider value={{ 
@@ -72,6 +80,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
       setFilteredBookmarks, 
       userTags,
       fetchBookmarks,
+      removeBookmark,
       isLoading
     }}>
       {children}

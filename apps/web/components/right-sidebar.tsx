@@ -14,7 +14,7 @@ export async function RightSidebar() {
       <div className="flex-1 overflow-auto p-4">
         <RightSidebarBookmarks bookmarks={frequentBookmarks} />
 
-        <section>
+        {/* <section>
           <h3 className="text-sm font-medium mb-3">Tools</h3>
           <div className="space-y-2">
             <button className="w-full flex items-center text-sm h-8 px-2 text-muted-foreground hover:text-foreground">
@@ -75,13 +75,13 @@ export async function RightSidebar() {
               Settings
             </button>
           </div>
-        </section>
+        </section> */}
       </div>
 
       <div className="p-4 border-t flex justify-between items-center">
-        <button className="text-xs text-muted-foreground hover:text-foreground">
+        {/* <button className="text-xs text-muted-foreground hover:text-foreground">
           Dark Mode
-        </button>
+        </button> */}
         <div className="text-xs text-muted-foreground">© 2025 Bookmark Manager v1.0.0</div>
       </div>
     </div>

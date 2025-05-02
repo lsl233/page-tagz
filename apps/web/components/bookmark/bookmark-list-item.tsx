@@ -20,7 +20,7 @@ import { Favicon } from "@/components/ui/favicon"
 
 export type BookmarkItemProps = typeof bookmarks.$inferSelect & {
   viewMode: "grid" | "list"
-  onDelete?: (id: string) => Promise<{ success: boolean; message: string }>
+  onDelete?: (id: string) => Promise<{ success: boolean; message: string; silent?: boolean }>
 }
 
 export function BookmarkItem({
@@ -71,7 +71,9 @@ export function BookmarkItem({
 
   const handleDelete = async () => {
     if (onDelete) {
-      return onDelete(id)
+      const response = await onDelete(id)
+      setDeleteOpen(false)
+      return response
     }
     return Promise.resolve({ success: true, message: "Bookmark deleted successfully" })
   }

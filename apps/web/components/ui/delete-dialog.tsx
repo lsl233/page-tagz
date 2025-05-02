@@ -12,12 +12,18 @@ import {
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
+interface DeleteResponse {
+  success: boolean
+  message: string
+  silent?: boolean
+}
+
 interface DeleteDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
   description: string
-  onDelete: () => Promise<{ success: boolean; message: string }>
+  onDelete: () => Promise<DeleteResponse>
   onSuccess?: () => void
 }
 
@@ -36,15 +42,14 @@ export function DeleteDialog({
       setIsDeleting(true)
       const response = await onDelete()
       
-      if (response.success) {
+      if (response.success && !response.silent) {
         toast.success(response.message)
-        onOpenChange(false)
-        onSuccess?.()
-      } else {
-        toast.error(response.message)
       }
+      
+      onSuccess?.()
     } catch (e) {
       toast.error("An unexpected error occurred")
+      onOpenChange(false)
     } finally {
       setIsDeleting(false)
     }

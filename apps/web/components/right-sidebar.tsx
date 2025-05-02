@@ -82,7 +82,7 @@ export async function RightSidebar() {
         {/* <button className="text-xs text-muted-foreground hover:text-foreground">
           Dark Mode
         </button> */}
-        <div className="text-xs text-muted-foreground">© 2025 Bookmark Manager v1.0.0</div>
+        <div className="text-xs text-muted-foreground text-center w-full">© 2025 PageTagz v1.0.0</div>
       </div>
     </div>
   )

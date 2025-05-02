@@ -19,6 +19,7 @@ type TagContextType = {
   fetchBookmarks: () => Promise<void>
   removeBookmark: (bookmarkId: string) => void
   addBookmark: (bookmark: Bookmark, tagIds?: string[]) => void
+  updateBookmark: (bookmarkId: string, updatedData: Partial<typeof bookmarks.$inferSelect>, tags: string[]) => void
   isLoading: boolean
 }
 
@@ -81,6 +82,44 @@ export function TagProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // 用于乐观更新编辑后的书签
+  const updateBookmark = (bookmarkId: string, updatedData: Partial<typeof bookmarks.$inferSelect>, tags: string[]) => {
+    try {
+      // 检查选中的标签是否为 null（即显示所有书签）或者新标签列表中是否包含当前选中的标签
+      const shouldIncludeInCurrentView = !selectedTagId || tags.includes(selectedTagId);
+      
+      // 查找现有书签在当前视图中的索引
+      const existingIndex = filteredBookmarks.findIndex(b => b.id === bookmarkId);
+      const exists = existingIndex !== -1;
+
+      // 创建更新后的书签数据
+      const updatedBookmark = exists 
+        ? { ...filteredBookmarks[existingIndex], ...updatedData }
+        : { id: bookmarkId, ...updatedData } as typeof bookmarks.$inferSelect;
+
+      // 根据书签是否应该显示在当前视图中来更新状态
+      if (shouldIncludeInCurrentView) {
+        if (exists) {
+          // 更新现有书签
+          const updatedBookmarks = [...filteredBookmarks];
+          updatedBookmarks[existingIndex] = updatedBookmark;
+          setFilteredBookmarks(updatedBookmarks);
+        } else {
+          // 如果书签之前不在此视图中但现在应该显示，则添加它
+          setFilteredBookmarks(prev => [updatedBookmark, ...prev]);
+        }
+      } else if (exists) {
+        // 如果书签不应该出现在当前视图中但目前存在，则移除它
+        setFilteredBookmarks(prev => prev.filter(b => b.id !== bookmarkId));
+      }
+      // 如果书签不在当前视图中且不应该添加到当前视图，则不做任何操作
+    } catch (error) {
+      console.error("Error updating bookmark in context:", error);
+      // 在出现错误时可以触发重新获取数据
+      // fetchBookmarks();
+    }
+  }
+
   return (
     <TagContext.Provider value={{ 
       selectedTagId, 
@@ -91,6 +130,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
       fetchBookmarks,
       removeBookmark,
       addBookmark,
+      updateBookmark,
       isLoading
     }}>
       {children}

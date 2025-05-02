@@ -36,7 +36,7 @@ export function BookmarkItem({
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [currentTags, setCurrentTags] = useState<string[]>([])
-  const { userTags, fetchBookmarks } = useTagContext()
+  const { userTags, updateBookmark: updateBookmarkInContext } = useTagContext()
   const { data: session } = useSession()
 
   useEffect(() => {
@@ -58,15 +58,30 @@ export function BookmarkItem({
       return
     }
 
+    // 保存当前状态以便进行乐观更新
+    const updatedBookmarkData = {
+      title: data.title,
+      url: data.url,
+      description: data.description || null,
+    }
+    
+    // 立即使用乐观更新更新UI
+    updateBookmarkInContext(id, updatedBookmarkData, data.tags)
+    
+    // 提交到服务器
     const response = await updateBookmark(session.user.id, id, data)
 
     if (response.success) {
       toast.success(response.message)
       setEditOpen(false)
-      fetchBookmarks()
+      // 更新成功，本地状态已经更新，不需要再获取数据
     } else {
       toast.error(response.message)
+      // 如果更新失败，可以考虑还原UI或重新获取数据
+      // fetchBookmarks()
     }
+    
+    return response
   }
 
   const handleDelete = async () => {

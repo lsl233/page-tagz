@@ -2,8 +2,7 @@
 import { BookmarkList } from "@/components/bookmark/bookmark-list"
 import { BookmarkSidebar } from "@/components/bookmark/bookmark-sidebar"
 import { RightSidebar } from "@/components/right-sidebar"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { SearchBar } from "@/components/bookmark/search-bar"
 
 
 export async function BookmarkManager() {
@@ -23,10 +22,7 @@ export async function BookmarkManager() {
       <div className="flex-1 flex flex-col overflow-hidden border-l border-r">
 
         <div className="p-4 border-b">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search bookmarks, URLs or tags..." className="pl-9 pr-4" />
-          </div>
+          <SearchBar />
         </div>
 
         <div className="flex-1 overflow-auto">

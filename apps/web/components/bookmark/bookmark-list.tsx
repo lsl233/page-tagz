@@ -14,7 +14,18 @@ type BookmarkListProps = {
 
 export function BookmarkList({ viewMode }: BookmarkListProps) {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
-  const { filteredBookmarks, isLoading, userTags, removeBookmark, fetchBookmarks } = useTagContext()
+  const { 
+    filteredBookmarks, 
+    isLoading, 
+    userTags, 
+    removeBookmark, 
+    fetchBookmarks,
+    searchQuery,
+    searchResults
+  } = useTagContext()
+
+  // 根据是否有搜索查询来决定显示的书签列表
+  const displayedBookmarks = searchQuery.trim() !== "" ? searchResults : filteredBookmarks
 
   const handleDelete = async (id: string) => {
     if (!user?.id) {
@@ -78,12 +89,16 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
             : "flex flex-col"
         }
       >
-        {filteredBookmarks.length === 0 ? (
+        {displayedBookmarks.length === 0 ? (
           <div className="col-span-full text-center p-8 text-muted-foreground">
-            {userTags.length > 0 ? "Please add a bookmark to get started" : "Please create a tag to get started"}
+            {searchQuery.trim() !== "" 
+              ? "没有找到匹配的书签" 
+              : userTags.length > 0 
+                ? "请添加书签以开始使用" 
+                : "请创建标签以开始使用"}
           </div>
         ) : (
-          filteredBookmarks.map((bookmark) => (
+          displayedBookmarks.map((bookmark) => (
             <BookmarkItem
               key={bookmark.id}
               {...bookmark}

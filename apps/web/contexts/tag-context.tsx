@@ -21,6 +21,9 @@ type TagContextType = {
   addBookmark: (bookmark: Bookmark, tagIds?: string[]) => void
   updateBookmark: (bookmarkId: string, updatedData: Partial<typeof bookmarks.$inferSelect>, tags: string[]) => void
   isLoading: boolean
+  searchQuery: string
+  setSearchQuery: (query: string) => void
+  searchResults: Bookmark[]
 }
 
 const TagContext = createContext<TagContextType | undefined>(undefined)
@@ -30,6 +33,8 @@ export function TagProvider({ children }: { children: ReactNode }) {
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [userTags, setUserTags] = useState<Tag[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<Bookmark[]>([])
 
   const fetchBookmarks = async () => {
     if (selectedTagId) {
@@ -68,6 +73,23 @@ export function TagProvider({ children }: { children: ReactNode }) {
       // setIsLoading(false)
     }
   }, [selectedTagId])
+
+  // 处理搜索，在当前标签的书签中根据查询进行过滤
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const results = filteredBookmarks.filter(bookmark => 
+      bookmark.title?.toLowerCase().includes(query) || 
+      bookmark.url?.toLowerCase().includes(query) || 
+      bookmark.description?.toLowerCase().includes(query)
+    );
+    
+    setSearchResults(results);
+  }, [searchQuery, filteredBookmarks]);
 
   // 用于乐观更新的删除书签方法
   const removeBookmark = (bookmarkId: string) => {
@@ -131,7 +153,10 @@ export function TagProvider({ children }: { children: ReactNode }) {
       removeBookmark,
       addBookmark,
       updateBookmark,
-      isLoading
+      isLoading,
+      searchQuery,
+      setSearchQuery,
+      searchResults
     }}>
       {children}
     </TagContext.Provider>

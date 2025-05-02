@@ -5,6 +5,7 @@ import { eq, desc, inArray } from "drizzle"
 import { CreateTagForm, BookmarkFormData } from "@/lib/zod-schema"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { createErrorResponse, createSuccessResponse, ErrorCode } from "./api-utils"
 
 export type ActionResponse = {
   success: boolean
@@ -450,14 +451,11 @@ export const deleteBookmark = async (userId: string, bookmarkId: string): Promis
     })
 
     if (!existingBookmark) {
-      return {
-        success: false,
-        message: "Bookmark not found",
-        error: {
-          code: "BOOKMARK_NOT_FOUND",
-          details: "The bookmark you are trying to delete does not exist or you don't have permission to delete it"
-        }
-      }
+      return await createErrorResponse(
+        ErrorCode.BOOKMARK_NOT_FOUND,
+        "Bookmark not found",
+        "The bookmark you are trying to delete does not exist or you don't have permission to delete it"
+      )
     }
 
     // 首先删除书签和标签的关联
@@ -467,22 +465,18 @@ export const deleteBookmark = async (userId: string, bookmarkId: string): Promis
     // 然后删除书签
     await db.delete(bookmarks)
       .where(eq(bookmarks.id, bookmarkId))
-
-    revalidatePath('/')
     
-    return {
-      success: true,
-      message: 'Bookmark deleted successfully!'
-    }
+    return await createSuccessResponse(
+      undefined,
+      'Bookmark deleted successfully!',
+      ['/']
+    )
   } catch (e) {
     console.error("Failed to delete bookmark:", e)
-    return {
-      success: false,
-      message: 'Failed to delete bookmark',
-      error: {
-        code: "DATABASE_ERROR",
-        details: e instanceof Error ? e.message : "Unknown error occurred"
-      }
-    }
+    return await createErrorResponse(
+      ErrorCode.DATABASE_ERROR,
+      "Failed to delete bookmark",
+      e instanceof Error ? e.message : "Unknown error occurred"
+    )
   }
 }

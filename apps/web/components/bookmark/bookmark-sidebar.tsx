@@ -45,7 +45,7 @@ export async function BookmarkSidebar() {
                 {session.user?.email?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <span className="ml-2 text-sm text-muted-foreground">{session.user?.email}</span>
+            <span className="ml-2 text-sm text-muted-foreground truncate flex-1">{session.user?.email}</span>
           </div>
         ) : (
           <LoginButton />

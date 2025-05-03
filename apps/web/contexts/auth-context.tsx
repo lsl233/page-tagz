@@ -66,7 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const githubLogin = async () => {
     setIsLoading(true)
     try {
-      await signIn("github", { redirect: false })
+      await signIn("github", { 
+        redirect: true,
+        callbackUrl: window.location.origin
+      })
     } catch (error) {
       console.error("GitHub login error:", error)
       toast.error("An error occurred during GitHub login")
@@ -93,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = async () => {
     setIsLoading(true)
     try {
-      await update()
+      await update({ force: true })
     } catch (error) {
       console.error("Error refreshing user session:", error)
       toast.error("Failed to refresh user data")

@@ -7,6 +7,7 @@ import { FaCircleNotch } from "react-icons/fa6";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner"
 import { deleteBookmark } from "@/lib/actions"
+import { useMemo } from "react"
 
 type BookmarkListProps = {
   viewMode: "grid" | "list"
@@ -24,8 +25,21 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
     searchResults
   } = useTagContext()
 
-  // 根据是否有搜索查询来决定显示的书签列表
-  const displayedBookmarks = searchQuery.trim() !== "" ? searchResults : filteredBookmarks
+  // 使用 useMemo 缓存显示的书签列表
+  const displayedBookmarks = useMemo(() => {
+    return searchQuery.trim() !== "" ? searchResults : filteredBookmarks;
+  }, [searchQuery, searchResults, filteredBookmarks]);
+
+  // 使用 useMemo 缓存空状态消息
+  const emptyStateMessage = useMemo(() => {
+    if (searchQuery.trim() !== "") {
+      return "no results found";
+    } else if (userTags.length > 0) {
+      return "Please add a bookmark to get started";
+    } else {
+      return "Please create a tag to get started";
+    }
+  }, [searchQuery, userTags.length]);
 
   const handleDelete = async (id: string) => {
     if (!user?.id) {
@@ -91,11 +105,7 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
       >
         {displayedBookmarks.length === 0 ? (
           <div className="col-span-full text-center p-8 text-muted-foreground">
-            {searchQuery.trim() !== "" 
-              ? "没有找到匹配的书签" 
-              : userTags.length > 0 
-                ? "请添加书签以开始使用" 
-                : "请创建标签以开始使用"}
+            {emptyStateMessage}
           </div>
         ) : (
           displayedBookmarks.map((bookmark) => (

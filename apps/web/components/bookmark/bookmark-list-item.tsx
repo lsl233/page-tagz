@@ -6,7 +6,7 @@ import { recordBookmarkClick, fetchBookmarkTags } from "@/lib/api"
 import { FiMoreVertical } from "react-icons/fi"
 import { Button } from "@/components/ui/button"
 import { DeleteDialog } from "@/components/ui/delete-dialog"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { BookmarkDialog } from "@/components/bookmark/bookmark-dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { bookmarks } from "drizzle/schema"
@@ -23,7 +23,23 @@ export type BookmarkItemProps = typeof bookmarks.$inferSelect & {
   onDelete?: (id: string) => Promise<{ success: boolean; message: string; silent?: boolean }>
 }
 
-export function BookmarkItem({
+// 记忆化的书签图标组件
+const MemoizedFaviconContainer = memo(function FaviconContainer({ 
+  url, 
+  icon 
+}: { 
+  url?: string, 
+  icon?: string | null 
+}) {
+  return (
+    <div className="h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+      <Favicon url={url} icon={icon} size={16} />
+    </div>
+  );
+});
+
+// 使用 React.memo 包装 BookmarkItem 组件
+export const BookmarkItem = memo(function BookmarkItem({
   id,
   title,
   url,
@@ -124,9 +140,7 @@ export function BookmarkItem({
             className="flex flex-1 gap-3 items-center"
             onClick={handleBookmarkClick}
           >
-            <div className="h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Favicon url={url} icon={icon} size={16} />
-            </div>
+            <MemoizedFaviconContainer url={url} icon={icon} />
             <div className="flex-1 overflow-hidden">
               <h3 className="font-medium text-sm line-clamp-1 break-all">{title}</h3>
               <div className="text-xs text-muted-foreground line-clamp-1 break-all">{url}</div>
@@ -175,4 +189,4 @@ export function BookmarkItem({
       </div>
     </>
   )
-} 
+}); 

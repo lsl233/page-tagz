@@ -35,7 +35,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [isRegister, setIsRegister] = useState(false)
   const [isLoggingInWithGithub, setIsLoggingInWithGithub] = useState(false)
   const router = useRouter()
-  const { refreshUser } = useAuth()
+  const { refreshUser, githubLogin } = useAuth()
   const { login, register, isLoading } = useAuthActions()
 
   const loginForm = useForm<LoginFormData>({
@@ -92,7 +92,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const handleGithubLogin = async () => {
     setIsLoggingInWithGithub(true)
     try {
-      await signIn("github", { redirect: false })
+      await githubLogin()
       await refreshUser()
       router.refresh()
       handleClose()

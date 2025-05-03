@@ -24,6 +24,8 @@ type TagContextType = {
   searchQuery: string
   setSearchQuery: (query: string) => void
   searchResults: Bookmark[]
+  updateTag: (tagId: string, updatedTag: Tag) => void
+  addTag: (tag: Tag) => void
 }
 
 const TagContext = createContext<TagContextType | undefined>(undefined)
@@ -41,7 +43,6 @@ export function TagProvider({ children }: { children: ReactNode }) {
       setIsLoading(true)
       try {
         const bookmarks = await fetchBookmarksByTag(selectedTagId)
-        console.log("bookmarks", bookmarks)
         setFilteredBookmarks(bookmarks)
       } catch (error) {
         console.error("Error fetching bookmarks:", error)
@@ -93,7 +94,15 @@ export function TagProvider({ children }: { children: ReactNode }) {
 
   // 用于乐观更新的删除书签方法
   const removeBookmark = (bookmarkId: string) => {
+    
     setFilteredBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
+    if (bookmarkId === selectedTagId) {
+      if (filteredBookmarks.length > 0) {
+        setSelectedTagId(filteredBookmarks[0].id)
+      } else {
+        setSelectedTagId(null)
+      }
+    }
   }
 
   // 用于乐观更新的添加书签方法
@@ -142,6 +151,27 @@ export function TagProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // 用于乐观更新标签
+  const updateTag = (tagId: string, updatedTag: Partial<Tag>) => {
+    setUserTags(prev => 
+      prev.map(tag => tag.id === tagId ? { ...tag, ...updatedTag } : tag)
+    );
+    
+    // 如果更新的是当前选中的标签，可能需要更新标签名显示
+    if (tagId === selectedTagId) {
+      // 可能需要其他操作，比如更新页面标题等
+    }
+  };
+
+  // 用于乐观更新添加标签
+  const addTag = (tag: Tag) => {
+    setUserTags(prev => [tag, ...prev]);
+    // 如果是首个标签，可以自动选中
+    if (userTags.length === 0) {
+      setSelectedTagId(tag.id);
+    }
+  };
+
   return (
     <TagContext.Provider value={{ 
       selectedTagId, 
@@ -156,7 +186,9 @@ export function TagProvider({ children }: { children: ReactNode }) {
       isLoading,
       searchQuery,
       setSearchQuery,
-      searchResults
+      searchResults,
+      updateTag,
+      addTag
     }}>
       {children}
     </TagContext.Provider>

@@ -11,9 +11,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { createTagFormSchema, CreateTagForm } from "@/lib/zod-schema"
-import { createTag, updateTag, type ActionResponse } from "@/lib/actions"
+import { createTag, updateTag as updateTagAction, type ActionResponse } from "@/lib/actions"
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "sonner"
+import { useTagContext } from "@/contexts/tag-context"
 
 type TagDialogProps = {
   open: boolean
@@ -26,6 +27,7 @@ type TagDialogProps = {
 export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSuccess, initialData }: TagDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { user } = useAuth()
+  const { updateTag, addTag } = useTagContext()
 
   const defaultValues: CreateTagForm = {
     name: "",
@@ -47,27 +49,43 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
     try {
       setIsSubmitting(true)
       let response: ActionResponse
-
       if (isEditing && initialData?.id) {
-        response = await updateTag(userId, initialData.id, data)
+        response = await updateTagAction(userId, initialData.id, data)
+        if (response.success && response.data) {
+          updateTag(initialData.id, response.data)
+          toast.success(response.message)
+          onSubmitSuccess?.(data)
+          handleClose()
+        } else {
+          switch (response.error?.code) {
+            case "DUPLICATE_TAG":
+              form.setError("name", {
+                type: "manual",
+                message: "This tag name already exists"
+              })
+              break
+            default:
+              toast.error(response.message)
+          }
+        }
       } else {
         response = await createTag(userId, data)
-      }
-
-      if (response.success) {
-        toast.success(response.message)
-        onSubmitSuccess?.(data)
-        handleClose()
-      } else {
-        switch (response.error?.code) {
-          case "DUPLICATE_TAG":
-            form.setError("name", {
-              type: "manual",
-              message: "This tag name already exists"
-            })
-            break
-          default:
-            toast.error(response.message)
+        if (response.success && response.data) {
+          addTag(response.data)
+          toast.success(response.message)
+          onSubmitSuccess?.(data)
+          handleClose()
+        } else {
+          switch (response.error?.code) {
+            case "DUPLICATE_TAG":
+              form.setError("name", {
+                type: "manual",
+                message: "This tag name already exists"
+              })
+              break
+            default:
+              toast.error(response.message)
+          }
         }
       }
     } catch (e) {

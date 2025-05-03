@@ -33,7 +33,7 @@ export function BookmarkDialog({
   availableTags = []
 }: BookmarkDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { addBookmark, selectedTagId } = useTagContext()
+  const { addBookmark, selectedTagId, userTags } = useTagContext()
 
   const defaultValues: BookmarkFormData = {
     title: "",
@@ -188,7 +188,7 @@ export function BookmarkDialog({
                     <Combobox
                       value={field.value}
                       onChange={field.onChange}
-                      options={availableTags}
+                      options={userTags}
                       disabled={isSubmitting}
                     />
                   </FormControl>

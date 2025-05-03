@@ -23,23 +23,23 @@ type BookmarkDialogProps = {
   availableTags?: { id: string; name: string }[]
 }
 
-export function BookmarkDialog({ 
-  open, 
-  onOpenChange, 
+export function BookmarkDialog({
+  open,
+  onOpenChange,
   onSuccess,
-  isEditing, 
-  onSubmit, 
+  isEditing,
+  onSubmit,
   initialData,
   availableTags = []
 }: BookmarkDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { addBookmark } = useTagContext()
+  const { addBookmark, selectedTagId } = useTagContext()
 
   const defaultValues: BookmarkFormData = {
     title: "",
     url: "",
     description: "",
-    tags: [],
+    tags: !isEditing && selectedTagId ? [selectedTagId] : [],
   }
 
   const form = useForm<BookmarkFormData>({
@@ -54,6 +54,13 @@ export function BookmarkDialog({
     }
   }, [initialData, form])
 
+  // 当 dialog 打开时，如果是新建模式且有选中的标签，则添加到表单
+  useEffect(() => {
+    if (open && !isEditing && selectedTagId && !initialData) {
+      form.setValue('tags', [selectedTagId])
+    }
+  }, [open, selectedTagId, isEditing, form, initialData])
+
   const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {
     if (!onSubmit) return
 
@@ -61,12 +68,12 @@ export function BookmarkDialog({
       setIsSubmitting(true)
       // 调用提交函数并等待响应
       const response = await onSubmit(data)
-      
+
       // 如果创建书签成功且收到了服务器返回的数据
       if (response?.success && response?.data && !isEditing) {
         // 使用服务器返回的数据进行乐观更新
         addBookmark(response.data, data.tags)
-        
+
         // 已经进行了乐观更新，服务器消息会通过 toast 显示
         toast.success(response.message || "Bookmark created successfully")
       } else if (response?.success && isEditing) {
@@ -76,7 +83,7 @@ export function BookmarkDialog({
         // 处理错误情况
         toast.error(response?.message || "Failed to save bookmark")
       }
-      
+
       onSuccess?.(data)
       handleClose()
     } catch (error) {
@@ -93,8 +100,8 @@ export function BookmarkDialog({
   }
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onOpenChange={(open) => {
         if (!open) {
           handleClose()
@@ -102,7 +109,7 @@ export function BookmarkDialog({
       }}
       modal={true}
     >
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[425px]"
         onPointerDownOutside={(e) => {
           e.preventDefault()
@@ -116,16 +123,16 @@ export function BookmarkDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <FormField
+            <FormField
               control={form.control}
               name="url"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>URL</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="https://example.com" 
-                      type="url" 
+                    <Input
+                      placeholder="https://example.com"
+                      type="url"
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -134,7 +141,7 @@ export function BookmarkDialog({
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="title"
@@ -142,8 +149,8 @@ export function BookmarkDialog({
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Bookmark title" 
+                    <Input
+                      placeholder="Bookmark title"
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -160,8 +167,8 @@ export function BookmarkDialog({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Brief description" 
+                    <Textarea
+                      placeholder="Brief description"
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -191,15 +198,15 @@ export function BookmarkDialog({
             />
 
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 type="submit"
                 disabled={isSubmitting}
                 loading={isSubmitting}

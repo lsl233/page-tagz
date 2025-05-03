@@ -26,6 +26,7 @@ type TagContextType = {
   searchResults: Bookmark[]
   updateTag: (tagId: string, updatedTag: Tag) => void
   addTag: (tag: Tag) => void
+  removeTag: (tagId: string) => void
 }
 
 const TagContext = createContext<TagContextType | undefined>(undefined)
@@ -96,13 +97,6 @@ export function TagProvider({ children }: { children: ReactNode }) {
   const removeBookmark = (bookmarkId: string) => {
     
     setFilteredBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
-    if (bookmarkId === selectedTagId) {
-      if (filteredBookmarks.length > 0) {
-        setSelectedTagId(filteredBookmarks[0].id)
-      } else {
-        setSelectedTagId(null)
-      }
-    }
   }
 
   // 用于乐观更新的添加书签方法
@@ -172,6 +166,33 @@ export function TagProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // 用于乐观更新删除标签
+  const removeTag = (tagId: string) => {
+    // 如果删除的是当前选中的标签，则需要更新选中状态
+    if (tagId === selectedTagId) {
+      // 过滤掉删除的标签后，选择新的标签
+      setUserTags(prev => {
+        const updatedTags = prev.filter(tag => tag.id !== tagId);
+        
+        if (updatedTags.length > 0) {
+          // 如果还有其他标签，选中第一个标签
+          setSelectedTagId(updatedTags[0].id);
+        } else {
+          // 如果没有标签了，将选中状态设为 null
+          setSelectedTagId(null);
+        }
+        
+        // 清空当前书签列表，因为选中的标签已经改变
+        setFilteredBookmarks([]);
+        
+        return updatedTags;
+      });
+    } else {
+      // 如果删除的不是当前选中的标签，只需要更新标签列表
+      setUserTags(prev => prev.filter(tag => tag.id !== tagId));
+    }
+  };
+
   return (
     <TagContext.Provider value={{ 
       selectedTagId, 
@@ -188,7 +209,8 @@ export function TagProvider({ children }: { children: ReactNode }) {
       setSearchQuery,
       searchResults,
       updateTag,
-      addTag
+      addTag,
+      removeTag
     }}>
       {children}
     </TagContext.Provider>

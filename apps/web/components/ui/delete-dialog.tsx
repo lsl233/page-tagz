@@ -44,6 +44,8 @@ export function DeleteDialog({
       
       if (response.success && !response.silent) {
         toast.success(response.message)
+      } else {
+        toast.error(response.message);
       }
       onSuccess?.()
     } catch (e) {

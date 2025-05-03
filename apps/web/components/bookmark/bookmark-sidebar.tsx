@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 import { TagButton } from "@/components/tag/tag-button"
 import { LoginButton } from "@/components/login/login-button"
@@ -5,6 +7,8 @@ import { auth } from "@/auth"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { getUserTags } from "@/lib/actions"
 import { TagNavItem } from "@/components/tag/tag-nav-item";
+import { useTagContext } from "@/contexts/tag-context"
+import { useSession } from "next-auth/react"
 
 
 type TagItem = {
@@ -14,12 +18,12 @@ type TagItem = {
   active?: boolean
 }
 
-export async function BookmarkSidebar() {
-  const session = await auth()
+export function BookmarkSidebar() {
+  const { userTags } = useTagContext()
+  const session = useSession()
 
-  const userInfo = session?.user
+  const userInfo = session?.data?.user
 
-  const userTags = userInfo?.id ? await getUserTags(userInfo.id) : []
 
   return (
     <div className="w-[210px] flex-shrink-0 bg-background flex flex-col">
@@ -40,12 +44,12 @@ export async function BookmarkSidebar() {
         {userInfo ? (
           <div className="flex items-center gap-2">
             <Avatar>
-              <AvatarImage src={session.user?.image ?? ""} />
+              <AvatarImage src={userInfo?.image ?? ""} />
               <AvatarFallback>
-                {session.user?.email?.charAt(0)}
+                {userInfo?.email?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <span className="ml-2 text-sm text-muted-foreground truncate flex-1">{session.user?.email}</span>
+            <span className="ml-2 text-sm text-muted-foreground truncate flex-1">{userInfo?.email}</span>
           </div>
         ) : (
           <LoginButton />

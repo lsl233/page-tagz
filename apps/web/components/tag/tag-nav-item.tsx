@@ -13,12 +13,13 @@ import { deleteTag } from "@/lib/actions";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useTagContext } from "@/contexts/tag-context";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const session = useSession();
-  const { selectedTagId, setSelectedTagId } = useTagContext();
+  const { selectedTagId, setSelectedTagId, removeTag } = useTagContext();
 
   const handleDelete = async () => {
     const userId = session.data?.user?.id;
@@ -28,8 +29,17 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
         message: "You must be logged in to perform this action"
       };
     }
+    
+    // 发送服务器请求
+    const response = await deleteTag(userId, tag.id);
 
-    return deleteTag(userId, tag.id);
+    // 立即执行乐观更新
+    removeTag(tag.id);
+    
+    // 关闭删除对话框
+    setDeleteOpen(false);
+    
+    return response;
   };
 
   const handleTagClick = () => {

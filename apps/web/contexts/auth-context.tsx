@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { useSession, signIn, signOut } from "next-auth/react"
 import { type Session } from "@/auth"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 type AuthContextType = {
   user: Session["user"] | null
@@ -18,6 +19,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter()
   const { data: session, status, update } = useSession()
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
@@ -66,14 +68,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const githubLogin = async () => {
     setIsLoading(true)
     try {
-      await signIn("github", { 
-        redirect: true,
-        callbackUrl: window.location.origin
+      const result = await signIn("github", { 
+        redirect: false
       })
+      console.log(result, 'result')
+      if (result?.error) {
+        toast.error("An error occurred during GitHub login")
+        setIsLoading(false)
+      } else {
+        // router.refresh()
+        window.location.href = result?.url || "/";
+        // toast.success("Successfully logged in with GitHub")
+      }
     } catch (error) {
       console.error("GitHub login error:", error)
       toast.error("An error occurred during GitHub login")
-    } finally {
       setIsLoading(false)
     }
   }

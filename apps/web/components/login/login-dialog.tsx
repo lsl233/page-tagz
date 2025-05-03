@@ -93,13 +93,9 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     setIsLoggingInWithGithub(true)
     try {
       await githubLogin()
-      await refreshUser()
-      router.refresh()
-      handleClose()
     } catch (error) {
       console.error("GitHub login error:", error)
       toast.error("GitHub login failed")
-    } finally {
       setIsLoggingInWithGithub(false)
     }
   }

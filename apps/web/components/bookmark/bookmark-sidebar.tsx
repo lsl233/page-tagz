@@ -3,20 +3,10 @@
 import type React from "react"
 import { TagButton } from "@/components/tag/tag-button"
 import { LoginButton } from "@/components/login/login-button"
-import { auth } from "@/auth"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { getUserTags } from "@/lib/actions"
 import { TagNavItem } from "@/components/tag/tag-nav-item";
 import { useTagContext } from "@/contexts/tag-context"
 import { useSession } from "next-auth/react"
-
-
-type TagItem = {
-  name: string
-  icon: React.ReactNode
-  count: number
-  active?: boolean
-}
 
 export function BookmarkSidebar() {
   const { userTags } = useTagContext()
@@ -24,11 +14,10 @@ export function BookmarkSidebar() {
 
   const userInfo = session?.data?.user
 
-
   return (
     <div className="w-[210px] flex-shrink-0 bg-background flex flex-col">
       <div className="p-2">
-        <h2 className="font-semibold text-lg">Tags</h2>
+        <h2 className="font-semibold text-lg">PageTags</h2>
       </div>
       <div className="px-2 py-1">
         <TagButton />

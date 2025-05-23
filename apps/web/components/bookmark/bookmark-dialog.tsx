@@ -76,16 +76,17 @@ export function BookmarkDialog({
 
         // 已经进行了乐观更新，服务器消息会通过 toast 显示
         toast.success(response.message || "Bookmark created successfully")
+        handleClose()
+        onSuccess?.(data)
       } else if (response?.success && isEditing) {
         // 更新操作不使用乐观更新，而是通过重新获取数据来更新
         toast.success(response.message || "Bookmark updated successfully")
+        handleClose()
+        onSuccess?.(data)
       } else if (!response?.success) {
         // 处理错误情况
         toast.error(response?.message || "Failed to save bookmark")
       }
-
-      onSuccess?.(data)
-      handleClose()
     } catch (error) {
       toast.error("Something went wrong. Please try again.")
       console.error("Error submitting bookmark:", error)

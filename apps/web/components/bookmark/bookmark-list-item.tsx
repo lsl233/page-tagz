@@ -45,7 +45,6 @@ export const BookmarkItem = memo(function BookmarkItem({
   url,
   description,
   icon,
-  iconBg,
   viewMode,
   onDelete
 }: BookmarkItemProps) {
@@ -69,6 +68,9 @@ export const BookmarkItem = memo(function BookmarkItem({
   }, [id])
 
   const handleEdit = async (data: BookmarkFormData) => {
+    
+    // BUG: 选中了标签，保存后会自动移除
+    // BUG: 编辑成功会提示2次
     if (!session?.user?.id) {
       toast.error("You must be logged in to edit a bookmark")
       return
@@ -88,11 +90,11 @@ export const BookmarkItem = memo(function BookmarkItem({
     const response = await updateBookmark(session.user.id, id, data)
 
     if (response.success) {
-      toast.success(response.message)
+      // toast.success(response.message)
       setEditOpen(false)
       // 更新成功，本地状态已经更新，不需要再获取数据
     } else {
-      toast.error(response.message)
+      // toast.error(response.message)
       // 如果更新失败，可以考虑还原UI或重新获取数据
       // fetchBookmarks()
     }

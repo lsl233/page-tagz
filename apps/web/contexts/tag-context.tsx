@@ -1,14 +1,16 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { bookmarks, tags } from "drizzle/schema"
+import { bookmarks, bookmarkTags, tags } from "drizzle/schema"
 import { getUserTags } from "@/lib/actions"
 import { fetchBookmarksByTag } from "@/lib/api"
 import { toast } from "sonner"
 
 type Bookmark = typeof bookmarks.$inferSelect
 
-type Tag = typeof tags.$inferSelect
+type Tag = typeof tags.$inferSelect & {
+  bookmarkTags: typeof bookmarkTags.$inferSelect[]
+}
 
 type TagContextType = {
   selectedTagId: string | null
@@ -60,7 +62,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
     const initializeTags = async () => {
       const tags = await getUserTags()
       setUserTags(tags)
-      if (tags.length > 0) {
+      if (tags.length > 0 && selectedTagId === null) {
         setSelectedTagId(tags[0].id)
       }
       setIsLoading(false)

@@ -22,11 +22,19 @@ export const getUserTags = async (userId?: string) => {
   if (!session?.user?.id) {
     return []
   }
+
   const foundTags = await db.query.tags.findMany({
     where: eq(tags.userId, session.user.id),
     orderBy: [desc(tags.createdAt)],
+    with: {
+      bookmarkTags: true
+    }
   })
-  return foundTags
+
+  return foundTags.map(tag => ({
+    ...tag,
+    bookmarkCount: tag.bookmarkTags.length
+  }))
 }
 
 export const createTag = async (userId: string, tag: CreateTagForm): Promise<ActionResponse> => {

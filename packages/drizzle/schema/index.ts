@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { pgTable, text, integer, boolean, timestamp, primaryKey, uuid, unique } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 
 // export const test = pgTable('test', {
@@ -131,7 +132,6 @@ export const tags = pgTable('tag', {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 }, (table) => ({
-  // 改为 unique 约束
   uniqueCreatorName: unique().on(table.userId, table.name)
 }));
 
@@ -148,4 +148,20 @@ export const bookmarkTags = pgTable('bookmark_tag', {
     .notNull(),
 }, (table) => ({
   pk: primaryKey({ columns: [table.bookmarkId, table.tagId] }),
+}));
+
+// Relations
+export const tagsRelations = relations(tags, ({ many }) => ({
+  bookmarkTags: many(bookmarkTags)
+}));
+
+export const bookmarkTagsRelations = relations(bookmarkTags, ({ one }) => ({
+  tag: one(tags, {
+    fields: [bookmarkTags.tagId],
+    references: [tags.id],
+  }),
+  bookmark: one(bookmarks, {
+    fields: [bookmarkTags.bookmarkId],
+    references: [bookmarks.id],
+  }),
 }));

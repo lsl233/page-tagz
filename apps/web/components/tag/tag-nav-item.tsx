@@ -3,7 +3,7 @@
 import { FiMoreVertical } from "react-icons/fi";
 import { FaHashtag } from "react-icons/fa6";
 
-import { tags } from "drizzle/schema";
+import { type tags, type bookmarkTags } from "drizzle/schema";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
@@ -15,7 +15,13 @@ import { useTagContext } from "@/contexts/tag-context";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
+interface TagNavItemProps {
+  tag: typeof tags.$inferSelect & {
+    bookmarkTags: typeof bookmarkTags.$inferSelect[]
+  }
+}
+
+export function TagNavItem({ tag }: TagNavItemProps) {
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const session = useSession();
@@ -68,7 +74,7 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
       <li 
         key={tag.name} 
         className={cn(
-          "flex rounded-md text-sm items-center gap-1 w-full justify-start pl-2 pr-1 py-1.5 h-auto cursor-pointer hover:bg-accent",
+          "group relative flex items-center gap-1 w-full justify-start pl-2 pr-1 py-1.5 h-auto cursor-pointer hover:bg-accent rounded-md",
           selectedTagId === tag.id && "bg-gray-100"
         )}
         onClick={handleTagClick}
@@ -76,22 +82,27 @@ export function TagNavItem({ tag }: { tag: typeof tags.$inferSelect }) {
         <FaHashtag className="w-4 h-4" />
         <span className="flex-1 text-left">{tag.name}</span>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="p-0 h-auto w-auto">
-              <FiMoreVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => setDeleteOpen(true)}
-              className="text-destructive focus:text-destructive"
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <span className="text-xs mr-2 text-gray-500 transition-opacity duration-200 opacity-100 group-hover:opacity-0">{tag.bookmarkTags.length}</span>
+          <div className="absolute right-2 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="p-0 h-auto w-auto flex items-center justify-center">
+                  <FiMoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setDeleteOpen(true)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </li>
     </>
   )

@@ -1,0 +1,26 @@
+{
+  "name": "@packages/business",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@packages/ui": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@packages/typescript-config": "workspace:*",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  },
+  "exports": {
+    "./components/*": "./src/components/*.tsx"
+  }
+}

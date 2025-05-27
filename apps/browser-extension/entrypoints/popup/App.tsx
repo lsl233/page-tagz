@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import reactLogo from '@/assets/react.svg';
 import wxtLogo from '/wxt.svg';
-import './App.css';
+import '@packages/ui/globals.css';
+import { hello } from '@packages/utils';
+import { Button } from '@packages/ui/components/button-loading';
+
 
 function App() {
   const [count, setCount] = useState(0);
+
+  hello()
 
   return (
     <>
@@ -16,7 +21,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>WXT + React</h1>
+      <h1 className="text-2xl font-bold text-cyan-400">WXT + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}

@@ -2,37 +2,25 @@ import { useState } from 'react';
 import reactLogo from '@/assets/react.svg';
 import wxtLogo from '/wxt.svg';
 import '@packages/ui/globals.css';
-import { hello } from '@packages/utils';
+// import { hello } from '@packages/utils';
 import { Button } from '@packages/ui/components/button-loading';
-
+import { Hello } from '@packages/business/components/hello';
+import { BookmarkForm } from '../../components/BookmarkForm'
+console.log(Hello);
 
 function App() {
   const [count, setCount] = useState(0);
 
-  hello()
+  // hello()
 
   return (
     <>
-      <div>
-        <a href="https://wxt.dev" target="_blank">
-          <img src={wxtLogo} className="logo" alt="WXT logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1 className="text-2xl font-bold text-cyan-400">WXT + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the WXT and React logos to learn more
-      </p>
+      <BookmarkForm
+        onSubmit={() => {}}
+        isEditing={false}
+        isSubmitting={false}
+        onCancel={() => {}}
+      />
     </>
   );
 }

@@ -12,11 +12,16 @@
   "license": "ISC",
   "dependencies": {
     "@packages/ui": "workspace:*",
+    "@packages/utils": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.7",
+    "postcss": "^8.5.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
     "@packages/typescript-config": "workspace:*",
+    "@packages/postcss-config": "workspace:*",
     "@types/react": "^19",
     "@types/react-dom": "^19"
   },

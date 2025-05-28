@@ -3,21 +3,21 @@
 import * as React from "react";
 import {  CheckIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button-loading";
+import { cn } from "@packages/ui/lib/utils";
+import { Button } from "@packages/ui/components/button-loading";
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from "@packages/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
+} from "@packages/ui/components/popover";
+import { Badge } from "@packages/ui/components/badge";
 import { useCallback, useEffect, useState } from "react";
 import { Tag as TagIcon } from "lucide-react";
 
@@ -121,7 +121,7 @@ export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<Comm
       <PopoverContent className="p-0 max-h-full">
         <Command ref={ref}
           filter={(value, search, keywords) => {
-            return keywords && keywords[0].toLocaleLowerCase().includes(search.toLocaleLowerCase()) ? 1 : 0
+            return keywords && keywords.length && keywords[0]?.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ? 1 : 0
           }}
         >
           <CommandInput

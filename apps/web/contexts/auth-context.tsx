@@ -35,10 +35,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const isAuthenticated = !!user
 
-  // Initialize auth state
+  // 处理加载状态
   useEffect(() => {
     setIsLoading(status === "loading")
   }, [status])
+
+  // 处理用户数据持久化
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(process.env.NEXT_PUBLIC_LOCAL_STORAGE_USER_KEY, JSON.stringify(user))
+    } else {
+      localStorage.removeItem(process.env.NEXT_PUBLIC_LOCAL_STORAGE_USER_KEY)
+    }
+  }, [user])
 
   // Email/password login
   const login = async (email: string, password: string) => {

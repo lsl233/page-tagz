@@ -143,4 +143,13 @@ export async function DELETE(request: Request) {
   }
 }
 
+export async function GET(request: Request) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const allTags = await db.select().from(tags).where(eq(tags.userId, session.user.id))
+  return NextResponse.json(allTags)
+}
 

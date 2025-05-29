@@ -10,7 +10,7 @@ import { Combobox } from "@/components/ui/combobox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
-import { bookmarkSchema, type BookmarkFormData } from "@/lib/zod-schema"
+import { bookmarkSchema, type BookmarkFormData } from "@packages/utils/zod-schema"
 import { useTagContext } from "@/contexts/tag-context"
 
 type BookmarkDialogProps = {

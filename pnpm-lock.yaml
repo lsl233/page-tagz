@@ -24,12 +24,21 @@ importers:
       '@packages/business':
         specifier: workspace:*
         version: link:../../packages/business
+      '@packages/drizzle':
+        specifier: workspace:*
+        version: link:../../packages/drizzle
+      '@packages/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@packages/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@packages/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      '@webext-core/messaging':
+        specifier: ^2.2.0
+        version: 2.2.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -97,6 +106,12 @@ importers:
       '@packages/business':
         specifier: workspace:*
         version: link:../../packages/business
+      '@packages/drizzle':
+        specifier: workspace:*
+        version: link:../../packages/drizzle
+      '@packages/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@packages/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -145,9 +160,6 @@ importers:
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      drizzle:
-        specifier: workspace:*
-        version: link:../../packages/drizzle
       lucide-react:
         specifier: ^0.501.0
         version: 0.501.0(react@19.1.0)
@@ -269,7 +281,7 @@ importers:
         version: 16.5.0
       drizzle-orm:
         specifier: ^0.43.1
-        version: 0.43.1(@cloudflare/workers-types@4.20250426.0)(@neondatabase/serverless@1.0.0)(@prisma/client@6.6.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(@types/pg@8.11.14)(@vercel/postgres@0.10.0)(bun-types@1.2.14)(pg@8.15.6)(postgres@3.4.5)(prisma@6.6.0(typescript@5.8.3))
+        version: 0.43.1(@cloudflare/workers-types@4.20250426.0)(@neondatabase/serverless@1.0.0)(@prisma/client@6.6.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(@types/pg@8.11.14)(@vercel/postgres@0.10.0)(bun-types@1.2.15)(pg@8.15.6)(postgres@3.4.5)(prisma@6.6.0(typescript@5.8.3))
       next-auth:
         specifier: ^4.24.11
         version: 4.24.11(next@15.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -285,7 +297,7 @@ importers:
     devDependencies:
       '@types/bun':
         specifier: latest
-        version: 1.2.14
+        version: 1.2.15
       '@types/pg':
         specifier: ^8.11.14
         version: 8.11.14
@@ -295,6 +307,16 @@ importers:
       tsx:
         specifier: ^4.19.3
         version: 4.19.3
+
+  packages/env:
+    dependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+    devDependencies:
+      '@types/node':
+        specifier: ^20
+        version: 20.17.30
 
   packages/eslint-config:
     devDependencies:
@@ -336,6 +358,12 @@ importers:
         version: 8.32.1(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3)
 
   packages/postcss-config: {}
+
+  packages/types:
+    dependencies:
+      '@packages/drizzle':
+        specifier: workspace:*
+        version: link:../drizzle
 
   packages/typescript-config: {}
 
@@ -421,7 +449,7 @@ importers:
   packages/utils:
     dependencies:
       zod:
-        specifier: ^3.25.32
+        specifier: ^3.24.3
         version: 3.25.32
     devDependencies:
       '@types/node':
@@ -1098,6 +1126,10 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@lukeed/csprng@1.1.0':
+    resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
+    engines: {node: '>=8'}
 
   '@napi-rs/wasm-runtime@0.2.9':
     resolution: {integrity: sha512-OKRBiajrrxB9ATokgEQoG87Z25c67pCpYcCwmXYX8PBftC9pBfN18gnm/fh1wurSLEKIAt+QRFLFCQISrb66Jg==}
@@ -2013,8 +2045,8 @@ packages:
     resolution: {integrity: sha512-WRZOuCuaz8UcZZE4R5HXTco2goQSI2XxjGY3hbM/xDvwmqFWd4ivooImsMx65OKM6CtNKbnZ5YL+YwAwK7c1dg==}
     deprecated: This is a stub types definition. bcryptjs provides its own type definitions, so you do not need this installed.
 
-  '@types/bun@1.2.14':
-    resolution: {integrity: sha512-VsFZKs8oKHzI7zwvECiAJ5oSorWndIWEVhfbYqZd4HI/45kzW7PN2Rr5biAzvGvRuNmYLSANY+H59ubHq8xw7Q==}
+  '@types/bun@1.2.15':
+    resolution: {integrity: sha512-U1ljPdBEphF0nw1MIk0hI7kPg7dFdPyM7EenHsp6W5loNHl7zqy6JQf/RKCgnUn2KDzUpkBwHPnEJEjII594bA==}
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
@@ -2284,6 +2316,9 @@ packages:
   '@webext-core/match-patterns@1.0.3':
     resolution: {integrity: sha512-NY39ACqCxdKBmHgw361M9pfJma8e4AZo20w9AY+5ZjIj1W2dvXC8J31G5fjfOGbulW9w4WKpT8fPooi0mLkn9A==}
 
+  '@webext-core/messaging@2.2.0':
+    resolution: {integrity: sha512-CRKFSH8ZAp55QpzfseOO/RlW6fAVSGWYNJK1j23khB855Ba9wHu8PB3uuqMVZtfEAwAmsw/2U8HIkony5adFBQ==}
+
   '@wxt-dev/browser@0.0.317':
     resolution: {integrity: sha512-tpFr/OJjTlGY7FLIr950fNi9fIBLQQ9pRVDDajeqEMip5LsXFAxpbF4I1GAGUkdTJEghKQ8P5N9XnsAdbPBAOQ==}
 
@@ -2521,8 +2556,8 @@ packages:
     resolution: {integrity: sha512-WDtdLmJvAuNNPzByAYpRo2rF1Mmradw6gvWsQKf63476DDXmomT9zUiGypLcG4ibIM67vhAj8jJRdbmEws2Aqw==}
     engines: {node: '>=6.14.2'}
 
-  bun-types@1.2.14:
-    resolution: {integrity: sha512-Kuh4Ub28ucMRWeiUUWMHsT9Wcbr4H3kLIO72RZZElSDxSu7vpetRvxIUDUaW6QtaIeixIpm7OXtNnZPf82EzwA==}
+  bun-types@1.2.15:
+    resolution: {integrity: sha512-NarRIaS+iOaQU1JPfyKhZm4AsUOrwUOqRNHY0XxI8GI8jYxiLXLcdjYMG9UKS+fwWasc1uw1htV9AX24dD+p4w==}
 
   bundle-name@3.0.0:
     resolution: {integrity: sha512-PKA4BeSvBpQKQ8iPOGCSiell+N8P+Tf1DlwqmYhpe2gAhKPHn8EYOxVT+ShuGmhg8lN8XiSlS80yiExKXrURlw==}
@@ -5086,6 +5121,10 @@ packages:
   sentence-case@2.1.1:
     resolution: {integrity: sha512-ENl7cYHaK/Ktwk5OTD+aDbQ3uC8IByu/6Bkg+HDv8Mm+XnBnppVNalcfJTNsp1ibstKh030/JKQQWglDvtKwEQ==}
 
+  serialize-error@11.0.3:
+    resolution: {integrity: sha512-2G2y++21dhj2R7iHAdd0FIzjGwuKZld+7Pl/bTU6YIkrC2ZMbVUjm+luj6A6V34Rv9XfKJDKpTWu9W4Gse1D9g==}
+    engines: {node: '>=14.16'}
+
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -5485,6 +5524,10 @@ packages:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
     engines: {node: '>=10'}
 
+  type-fest@2.19.0:
+    resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
+    engines: {node: '>=12.20'}
+
   type-fest@3.13.1:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
@@ -5534,6 +5577,10 @@ packages:
 
   uhyphen@0.2.0:
     resolution: {integrity: sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA==}
+
+  uid@2.0.2:
+    resolution: {integrity: sha512-u3xV3X7uzvi5b1MncmZo3i2Aw222Zk1keqLA1YkHldREkAhAqi65wuPfe7lHx8H/Wzy+8CE7S7uS3jekIM5s8g==}
+    engines: {node: '>=8'}
 
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
@@ -5684,6 +5731,9 @@ packages:
   web-ext-run@0.2.3:
     resolution: {integrity: sha512-u/IiZaZ7dHFqTM1MLF27rBy8mS9fEEsqoOKL0u+kQdOLmEioA/0Szp67ADd3WAJZLd8/hO8cFST1IC/YMXKIjQ==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
+
+  webextension-polyfill@0.10.0:
+    resolution: {integrity: sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==}
 
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
@@ -6384,6 +6434,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@lukeed/csprng@1.1.0': {}
 
   '@napi-rs/wasm-runtime@0.2.9':
     dependencies:
@@ -7391,9 +7443,9 @@ snapshots:
     dependencies:
       bcryptjs: 3.0.2
 
-  '@types/bun@1.2.14':
+  '@types/bun@1.2.15':
     dependencies:
-      bun-types: 1.2.14
+      bun-types: 1.2.15
 
   '@types/estree@1.0.7': {}
 
@@ -7709,6 +7761,12 @@ snapshots:
 
   '@webext-core/match-patterns@1.0.3': {}
 
+  '@webext-core/messaging@2.2.0':
+    dependencies:
+      serialize-error: 11.0.3
+      uid: 2.0.2
+      webextension-polyfill: 0.10.0
+
   '@wxt-dev/browser@0.0.317':
     dependencies:
       '@types/filesystem': 0.0.36
@@ -7970,7 +8028,7 @@ snapshots:
     dependencies:
       node-gyp-build: 4.8.4
 
-  bun-types@1.2.14:
+  bun-types@1.2.15:
     dependencies:
       '@types/node': 20.17.30
 
@@ -8438,14 +8496,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.43.1(@cloudflare/workers-types@4.20250426.0)(@neondatabase/serverless@1.0.0)(@prisma/client@6.6.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(@types/pg@8.11.14)(@vercel/postgres@0.10.0)(bun-types@1.2.14)(pg@8.15.6)(postgres@3.4.5)(prisma@6.6.0(typescript@5.8.3)):
+  drizzle-orm@0.43.1(@cloudflare/workers-types@4.20250426.0)(@neondatabase/serverless@1.0.0)(@prisma/client@6.6.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(@types/pg@8.11.14)(@vercel/postgres@0.10.0)(bun-types@1.2.15)(pg@8.15.6)(postgres@3.4.5)(prisma@6.6.0(typescript@5.8.3)):
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250426.0
       '@neondatabase/serverless': 1.0.0
       '@prisma/client': 6.6.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
       '@types/pg': 8.11.14
       '@vercel/postgres': 0.10.0
-      bun-types: 1.2.14
+      bun-types: 1.2.15
       pg: 8.15.6
       postgres: 3.4.5
       prisma: 6.6.0(typescript@5.8.3)
@@ -10474,7 +10532,7 @@ snapshots:
       open: 9.1.0
       ora: 6.3.1
       prompts: 2.4.2
-      zod: 3.24.3
+      zod: 3.25.32
     transitivePeerDependencies:
       - supports-color
 
@@ -10742,6 +10800,10 @@ snapshots:
     dependencies:
       no-case: 2.3.2
       upper-case-first: 1.1.2
+
+  serialize-error@11.0.3:
+    dependencies:
+      type-fest: 2.19.0
 
   set-function-length@1.2.2:
     dependencies:
@@ -11182,6 +11244,8 @@ snapshots:
 
   type-fest@0.21.3: {}
 
+  type-fest@2.19.0: {}
+
   type-fest@3.13.1: {}
 
   type-fest@4.41.0: {}
@@ -11239,6 +11303,10 @@ snapshots:
     optional: true
 
   uhyphen@0.2.0: {}
+
+  uid@2.0.2:
+    dependencies:
+      '@lukeed/csprng': 1.1.0
 
   unbox-primitive@1.1.0:
     dependencies:
@@ -11437,6 +11505,8 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  webextension-polyfill@0.10.0: {}
 
   webpack-virtual-modules@0.6.2: {}
 

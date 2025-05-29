@@ -1,10 +1,13 @@
 {
   "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
+    "types": ["./vite-env.d.ts"],
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "paths": {
-      "@packages/*": ["../../packages/*"]
+      "@packages/*": ["../../packages/*"],
+      "@packages/utils/*": ["../../packages/utils/*"],
+      "@packages/env/*": ["../../packages/env/*"]
     }
-  }
+  },
 }

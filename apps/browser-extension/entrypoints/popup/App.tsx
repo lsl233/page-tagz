@@ -1,27 +1,36 @@
 import { useState } from 'react';
-import reactLogo from '@/assets/react.svg';
-import wxtLogo from '/wxt.svg';
 import '@packages/ui/globals.css';
-// import { hello } from '@packages/utils';
-import { Button } from '@packages/ui/components/button-loading';
-import { Hello } from '@packages/business/components/hello';
 import { BookmarkForm } from '../../components/BookmarkForm'
-console.log(Hello);
+import { Button } from '@packages/ui/components/button-loading';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [userInfo, setUserInfo] = useState<any>(null);
 
-  // hello()
+  const getUserInfo = async () => {
+    const userInfo = await storage.getItem('local:userInfo')
+    setUserInfo(userInfo);
+  }
+
+  useEffect(() => {
+    getUserInfo()
+  }, [])
+
+  if (!userInfo || !userInfo.id) {
+    return <Button onClick={() => {
+      window.open('http://localhost:3001', '_blank')
+    }}>Login</Button>
+  }
 
   return (
-    <>
+    <div className="p-4 w-96">
       <BookmarkForm
+        userId={userInfo.id}
         onSubmit={() => {}}
         isEditing={false}
         isSubmitting={false}
         onCancel={() => {}}
       />
-    </>
+    </div>
   );
 }
 

@@ -1,5 +1,5 @@
 {
-  "name": "drizzle",
+  "name": "@packages/drizzle",
   "module": "index.ts",
   "type": "module",
   "scripts": {

@@ -7,16 +7,16 @@ import { Input } from "@packages/ui/components/input"
 import { Textarea } from "@packages/ui/components/textarea"
 import { Combobox } from "@packages/ui/components/combobox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@packages/ui/components/form"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { bookmarkSchema, type BookmarkFormData } from "@packages/utils/zod-schema"
-// import { useTagContext } from "@packages/web/contexts/tag-context"
+import type { Tag } from "@packages/types"
 
 interface BookmarkFormProps {
   onSubmit: SubmitHandler<BookmarkFormData>
   isEditing: boolean
   isSubmitting: boolean
   initialData?: BookmarkFormData
-  onCancel: () => void
+  userId: string
 }
 
 export function BookmarkForm({
@@ -24,9 +24,10 @@ export function BookmarkForm({
   isEditing,
   isSubmitting,
   initialData,
-  onCancel
+  userId
 }: BookmarkFormProps) {
-  // const { selectedTagId, userTags } = useTagContext()
+  const [userTags, setUserTags] = useState<Tag[]>([])
+  const [isLoadingTags, setIsLoadingTags] = useState(false)
 
   const defaultValues: BookmarkFormData = {
     title: "",
@@ -38,7 +39,30 @@ export function BookmarkForm({
   const form = useForm<BookmarkFormData>({
     resolver: zodResolver(bookmarkSchema),
     defaultValues: initialData || defaultValues,
+    mode: "onChange",
   })
+
+  useEffect(() => {
+    async function fetchUserTags() {
+      if (!userId) return
+      
+      setIsLoadingTags(true)
+      try {
+        const response = await fetch(`/api/tags/user-tags/${userId}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch tags')
+        }
+        const data = await response.json()
+        setUserTags(data.tags)
+      } catch (error) {
+        console.error('Error fetching user tags:', error)
+      } finally {
+        setIsLoadingTags(false)
+      }
+    }
+
+    fetchUserTags()
+  }, [userId])
 
   useEffect(() => {
     if (initialData) {
@@ -95,6 +119,7 @@ export function BookmarkForm({
               <FormControl>
                 <Textarea
                   placeholder="Brief description"
+                  className="h-24"
                   {...field}
                   disabled={isSubmitting}
                 />
@@ -114,8 +139,8 @@ export function BookmarkForm({
                 <Combobox
                   value={field.value}
                   onChange={field.onChange}
-                  options={[]}
-                  disabled={isSubmitting}
+                  options={userTags}
+                  disabled={isSubmitting || isLoadingTags}
                 />
               </FormControl>
               <FormMessage />
@@ -123,16 +148,9 @@ export function BookmarkForm({
           )}
         />
 
-        <div className="flex justify-end space-x-2">
+        <div className="">
           <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
+            className="w-full"
             type="submit"
             disabled={isSubmitting}
             loading={isSubmitting}

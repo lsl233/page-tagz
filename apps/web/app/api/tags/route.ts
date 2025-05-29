@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server"
-import { and, db, eq, ne } from "drizzle"
-import { tags } from "drizzle/schema"
+import { and, db, eq, ne } from "@packages/drizzle"
+import { tags } from "@packages/drizzle/schema"
 import { auth, signOut } from "@/auth"
 import { z } from "zod"
 

@@ -1,11 +1,11 @@
 import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { db } from "drizzle"
+import { db } from "@packages/drizzle"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { type Session } from "next-auth"
-import { eq } from "drizzle"
-import { users } from "drizzle/schema"
+import { eq } from "@packages/drizzle"
+import { users } from "@packages/drizzle/schema"
 import bcrypt from "bcryptjs"
 
 // 扩展 Session 类型以包含 userId

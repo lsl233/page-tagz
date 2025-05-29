@@ -1,4 +1,4 @@
-import { type tags, type bookmarkTags } from "drizzle/schema"
+import { type tags, type bookmarkTags } from "@packages/drizzle/schema"
 import { DeleteDialog } from "@/components/ui/delete-dialog"
 import { useSession } from "next-auth/react"
 import { deleteTag } from "@/lib/actions"

@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { bookmarks, bookmarkTags, tags } from "drizzle/schema"
+import { bookmarks, bookmarkTags, tags } from "@packages/drizzle/schema"
 import { getUserTags } from "@/lib/actions"
 import { fetchBookmarksByTag } from "@/lib/api"
 import { toast } from "sonner"

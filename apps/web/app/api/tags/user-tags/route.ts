@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
-import { db, eq } from "drizzle"
-import { tags } from "drizzle/schema"
+import { db, eq } from "@packages/drizzle"
+import { tags } from "@packages/drizzle/schema"
 
 export async function GET(
   request: Request,

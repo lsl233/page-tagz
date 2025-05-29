@@ -1,8 +1,8 @@
 "use server"
 
-import { db } from "drizzle"
-import { users } from "drizzle/schema"
-import { eq } from "drizzle"
+import { db } from "@packages/drizzle"
+import { users } from "@packages/drizzle/schema"
+import { eq } from "@packages/drizzle"
 import { signIn } from "@/auth"
 import bcrypt from "bcryptjs"
 import { LoginFormData, RegisterFormData } from "./zod-schema"

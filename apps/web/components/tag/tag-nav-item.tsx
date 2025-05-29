@@ -3,7 +3,7 @@
 import { FiMoreVertical } from "react-icons/fi";
 import { FaHashtag } from "react-icons/fa6";
 
-import { type tags, type bookmarkTags } from "drizzle/schema";
+import { type tags, type bookmarkTags } from "@packages/drizzle/schema";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useState } from "react";

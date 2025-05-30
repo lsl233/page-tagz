@@ -151,6 +151,10 @@ export const bookmarkTags = pgTable('bookmark_tag', {
 }));
 
 // Relations
+export const bookmarksRelations = relations(bookmarks, ({ many }) => ({
+  bookmarkTags: many(bookmarkTags)
+}));
+
 export const tagsRelations = relations(tags, ({ many }) => ({
   bookmarkTags: many(bookmarkTags)
 }));

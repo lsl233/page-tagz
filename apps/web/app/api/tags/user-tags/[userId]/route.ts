@@ -4,10 +4,10 @@ import { tags } from "@packages/drizzle/schema"
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  segmentData: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = params
+    const { userId } = await segmentData.params
 
     if (!userId) {
       return new NextResponse("User ID is required", { status: 400 })

@@ -20,14 +20,15 @@ interface BookmarkFormProps {
 }
 
 export function BookmarkForm({
-  onSubmit,
+  onSubmit: onSubmitProp,
   isEditing,
-  isSubmitting,
+  isSubmitting: isSubmittingProp,
   initialData,
   userId
 }: BookmarkFormProps) {
   const [userTags, setUserTags] = useState<Tag[]>([])
   const [isLoadingTags, setIsLoadingTags] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const defaultValues: BookmarkFormData = {
     title: "",
@@ -39,8 +40,40 @@ export function BookmarkForm({
   const form = useForm<BookmarkFormData>({
     resolver: zodResolver(bookmarkSchema),
     defaultValues: initialData || defaultValues,
-    mode: "onChange",
   })
+
+  const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {
+    try {
+      setIsSubmitting(true)
+      
+      const response = await fetch(`http://localhost:3001/api/bookmarks?userId=${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create bookmark')
+      }
+
+      const result = await response.json()
+      console.log('Bookmark created:', result)
+      
+      // 调用父组件的 onSubmit
+      onSubmitProp(data)
+      
+      // 重置表单
+      form.reset(defaultValues)
+      
+    } catch (error) {
+      console.error('Error creating bookmark:', error)
+      // 这里可以添加错误提示
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   useEffect(() => {
     async function fetchUserTags() {
@@ -48,7 +81,7 @@ export function BookmarkForm({
       
       setIsLoadingTags(true)
       try {
-        const response = await fetch(`/api/tags/user-tags/${userId}`)
+        const response = await fetch(`http://localhost:3001/api/tags/user-tags/${userId}`)
         if (!response.ok) {
           throw new Error('Failed to fetch tags')
         }
@@ -72,7 +105,7 @@ export function BookmarkForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="url"
@@ -84,7 +117,7 @@ export function BookmarkForm({
                   placeholder="https://example.com"
                   type="url"
                   {...field}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isSubmittingProp}
                 />
               </FormControl>
               <FormMessage />
@@ -102,7 +135,7 @@ export function BookmarkForm({
                 <Input
                   placeholder="Bookmark title"
                   {...field}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isSubmittingProp}
                 />
               </FormControl>
               <FormMessage />
@@ -121,7 +154,7 @@ export function BookmarkForm({
                   placeholder="Brief description"
                   className="h-24"
                   {...field}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isSubmittingProp}
                 />
               </FormControl>
               <FormMessage />
@@ -152,8 +185,8 @@ export function BookmarkForm({
           <Button
             className="w-full"
             type="submit"
-            disabled={isSubmitting}
-            loading={isSubmitting}
+            disabled={isSubmitting || isSubmittingProp}
+            loading={isSubmitting || isSubmittingProp}
           >
             {isEditing ? "Save changes" : "Add bookmark"}
           </Button>

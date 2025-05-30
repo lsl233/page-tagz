@@ -1,5 +1,5 @@
 import { formatLocalUserInfo } from '@packages/utils/format-user-info';
-import { sendMessage } from '../lib/message';
+import { onMessage, sendMessage } from '../lib/message';
 
 export default defineContentScript({
   matches: ['http://localhost/*'],
@@ -14,8 +14,13 @@ export default defineContentScript({
     // });
     const user = formatLocalUserInfo(window.localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_USER_KEY))
     await sendMessage('userInfo', user)
+    
     window.addEventListener('storage', function (event) {
       console.log('storage', event);
     });
+
+    // onMessage('injectContent', (e) => {
+    //   console.log('injectContent', e);
+    // })  
   },
 });

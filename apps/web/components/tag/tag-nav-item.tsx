@@ -13,12 +13,10 @@ import { deleteTag } from "@/lib/actions";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useTagContext } from "@/contexts/tag-context";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { TagWithBookmarkCount } from "@packages/types";
 
 interface TagNavItemProps {
-  tag: typeof tags.$inferSelect & {
-    bookmarkTags: typeof bookmarkTags.$inferSelect[]
-  }
+  tag: TagWithBookmarkCount
 }
 
 export function TagNavItem({ tag }: TagNavItemProps) {
@@ -83,7 +81,7 @@ export function TagNavItem({ tag }: TagNavItemProps) {
         <span className="flex-1 text-left">{tag.name}</span>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs mr-2 text-gray-500 transition-opacity duration-200 opacity-100 group-hover:opacity-0">{tag.bookmarkTags.length}</span>
+          <span className="text-xs mr-2 text-gray-500 transition-opacity duration-200 opacity-100 group-hover:opacity-0">{tag.bookmarkCount}</span>
           <div className="absolute right-2 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>

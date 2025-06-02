@@ -12,6 +12,8 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { bookmarkSchema, type BookmarkFormData } from "@packages/utils/zod-schema"
 import { useTagContext } from "@/contexts/tag-context"
+import { ActionResponse } from "@/lib/actions"
+import { Bookmark } from "@packages/types"
 
 type BookmarkDialogProps = {
   open: boolean
@@ -19,7 +21,7 @@ type BookmarkDialogProps = {
   isEditing: boolean
   onSubmit?: (data: BookmarkFormData) => Promise<any>
   onSuccess?: (data: BookmarkFormData) => void
-  initialData?: BookmarkFormData
+  initialData?: BookmarkFormData & { id?: string }
   availableTags?: { id: string; name: string }[]
 }
 
@@ -33,9 +35,9 @@ export function BookmarkDialog({
   availableTags = []
 }: BookmarkDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { addBookmark, selectedTagId, userTags } = useTagContext()
+  const { addBookmark, updateBookmark, selectedTagId, userTags } = useTagContext()
 
-  const defaultValues: BookmarkFormData = {
+  const defaultValues: BookmarkFormData & { id?: string } = {
     title: "",
     url: "",
     description: "",
@@ -44,7 +46,7 @@ export function BookmarkDialog({
 
   const form = useForm<BookmarkFormData>({
     resolver: zodResolver(bookmarkSchema),
-    defaultValues: initialData || defaultValues,
+    defaultValues: Object.assign({}, defaultValues, initialData)
   })
 
   // Reset form when initialData changes
@@ -61,35 +63,62 @@ export function BookmarkDialog({
     }
   }, [open, selectedTagId, isEditing, form, initialData])
 
-  const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {
-    if (!onSubmit) return
+  // 处理创建书签的乐观更新
+  const handleCreateSuccess = (response: ActionResponse, data: BookmarkFormData) => {
+    if (response?.success && response?.data) {
+      addBookmark(response.data, data.tags)
+      toast.success(response.message || "Bookmark created successfully")
+      handleClose()
+      onSuccess?.(data)
+    }
+  }
 
-    try {
-      setIsSubmitting(true)
-      // 调用提交函数并等待响应
-      const response = await onSubmit(data)
+  // 处理更新书签的乐观更新
+  const handleUpdateSuccess = (response: ActionResponse, data: BookmarkFormData) => {
+    console.log(initialData)
+    if (response?.success && initialData && initialData.id) {
+      // 获取旧的标签列表
+      const newTags = data.tags
+      // 使用当前书签ID和新数据进行乐观更新
+      updateBookmark(initialData.id, {
+        ...data,
+        tags: newTags
+      }, newTags)
 
-      // 如果创建书签成功且收到了服务器返回的数据
-      if (response?.success && response?.data && !isEditing) {
-        // 使用服务器返回的数据进行乐观更新
-        addBookmark(response.data, data.tags)
+      toast.success(response.message || "Bookmark updated successfully")
+      handleClose()
+      onSuccess?.(data)
+    }
+  }
 
-        // 已经进行了乐观更新，服务器消息会通过 toast 显示
-        toast.success(response.message || "Bookmark created successfully")
-        handleClose()
-        onSuccess?.(data)
-      } else if (response?.success && isEditing) {
-        // 更新操作不使用乐观更新，而是通过重新获取数据来更新
-        toast.success(response.message || "Bookmark updated successfully")
-        handleClose()
-        onSuccess?.(data)
-      } else if (!response?.success) {
-        // 处理错误情况
-        toast.error(response?.message || "Failed to save bookmark")
-      }
-    } catch (error) {
+  // 处理错误情况
+  const handleError = (response?: ActionResponse, error?: unknown) => {
+    if (response) {
+      toast.error(response.message || "Failed to save bookmark")
+    } else {
       toast.error("Something went wrong. Please try again.")
       console.error("Error submitting bookmark:", error)
+    }
+  }
+
+  const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {
+    if (!onSubmit) return
+    try {
+      setIsSubmitting(true)
+      const response = await onSubmit(data)
+
+      if (!response?.success) {
+        handleError(response)
+        return
+      }
+
+      if (isEditing) {
+        handleUpdateSuccess(response, data)
+      } else {
+        handleCreateSuccess(response, data)
+      }
+    } catch (error) {
+      handleError(undefined, error)
     } finally {
       setIsSubmitting(false)
     }

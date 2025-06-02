@@ -71,7 +71,9 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
       } else {
         response = await createTag(userId, data)
         if (response.success && response.data) {
-          addTag(response.data)
+          const createdTag = response.data
+          createdTag.bookmarkTags = []
+          addTag(createdTag)
           toast.success(response.message)
           onSubmitSuccess?.(data)
           handleClose()

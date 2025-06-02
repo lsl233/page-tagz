@@ -77,14 +77,14 @@ export const BookmarkItem = memo(function BookmarkItem({
     }
 
     // 保存当前状态以便进行乐观更新
-    const updatedBookmarkData = {
-      title: data.title,
-      url: data.url,
-      description: data.description || null,
-    }
+    // const updatedBookmarkData = {
+    //   title: data.title,
+    //   url: data.url,
+    //   description: data.description || null,
+    // }
     
     // 立即使用乐观更新更新UI
-    updateBookmarkInContext(id, updatedBookmarkData, data.tags)
+    // updateBookmarkInContext(id, updatedBookmarkData, data.tags)
     
     // 提交到服务器
     const response = await updateBookmark(session.user.id, id, data)
@@ -181,6 +181,7 @@ export const BookmarkItem = memo(function BookmarkItem({
             onSubmit={handleEdit}
             availableTags={userTags}
             initialData={{
+              id: id,
               title: title ?? "",
               url: url ?? "",
               description: description ?? "",

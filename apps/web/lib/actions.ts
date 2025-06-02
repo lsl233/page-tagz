@@ -1,7 +1,7 @@
 "use server"
 import { db } from "@packages/drizzle"
 import { tags, bookmarks, bookmarkTags } from "@packages/drizzle/schema"
-import { eq, desc, inArray } from "@packages/drizzle"
+import { eq, desc, inArray, sql } from "@packages/drizzle"
 import { CreateTagForm, BookmarkFormData } from "@/lib/zod-schema"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
@@ -23,18 +23,25 @@ export const getUserTags = async (userId?: string) => {
     return []
   }
 
-  const foundTags = await db.query.tags.findMany({
-    where: eq(tags.userId, session.user.id),
-    orderBy: [desc(tags.createdAt)],
-    with: {
-      bookmarkTags: true
-    }
-  })
-
-  return foundTags.map(tag => ({
-    ...tag,
-    bookmarkCount: tag.bookmarkTags.length
-  }))
+  // 使用子查询获取标签计数
+  const foundTags = await db
+    .select({
+      id: tags.id,
+      name: tags.name,
+      description: tags.description,
+      userId: tags.userId,
+      createdAt: tags.createdAt,
+      updatedAt: tags.updatedAt,
+      bookmarkCount: sql<number>`(
+        SELECT COUNT(*)
+        FROM ${bookmarkTags}
+        WHERE ${bookmarkTags.tagId} = ${tags.id}
+      )`
+    })
+    .from(tags)
+    .where(eq(tags.userId, session.user.id))
+    .orderBy(desc(tags.createdAt));
+  return foundTags;
 }
 
 export const createTag = async (userId: string, tag: CreateTagForm): Promise<ActionResponse> => {
@@ -64,10 +71,11 @@ export const createTag = async (userId: string, tag: CreateTagForm): Promise<Act
     const createdTag = await db.insert(tags).values({
       ...tag,
       userId,
-    }).returning()
+    })
+      .returning()
 
     revalidatePath('/')
-    
+
     return {
       success: true,
       data: createdTag[0],
@@ -120,7 +128,7 @@ export const updateTag = async (userId: string, tagId: string, tag: CreateTagFor
       .returning()
 
     revalidatePath('/')
-    
+
     return {
       success: true,
       data: updatedTag[0],
@@ -167,7 +175,7 @@ export const deleteTag = async (userId: string, tagId: string): Promise<ActionRe
       .where(eq(tags.id, tagId))
 
     revalidatePath('/')
-    
+
     return {
       success: true,
       message: 'Tag deleted successfully!'
@@ -226,7 +234,7 @@ export const createBookmark = async (userId: string, bookmark: BookmarkFormData)
     )
 
     revalidatePath('/')
-    
+
     return {
       success: true,
       data: createdBookmark,
@@ -252,14 +260,34 @@ export const getBookmarksByTag = async (tagId: string) => {
       return []
     }
 
-    const foundBookmarks = await db
-      .select()
-      .from(bookmarkTags)
-      .innerJoin(bookmarks, eq(bookmarkTags.bookmarkId, bookmarks.id))
-      .where(eq(bookmarkTags.tagId, tagId))
-      .orderBy(desc(bookmarkTags.createdAt))
+    // 使用关系查询获取书签及其所有标签
+    const foundBookmarks = await db.query.bookmarks.findMany({
+      where: (bookmarks, { eq, and, exists }) => and(
+        eq(bookmarks.userId, session?.user?.id as string),
+        exists(
+          db.select().from(bookmarkTags).where(
+            and(
+              eq(bookmarkTags.bookmarkId, bookmarks.id),
+              eq(bookmarkTags.tagId, tagId)
+            )
+          )
+        )
+      ),
+      with: {
+        bookmarkTags: {
+          with: {
+            tag: true
+          }
+        }
+      },
+      orderBy: [desc(bookmarks.createdAt)]
+    })
 
-    return foundBookmarks.map(bt => bt.bookmark)
+    // 转换数据格式，提取标签ID
+    return foundBookmarks.map(bookmark => ({
+      ...bookmark,
+      tags: bookmark.bookmarkTags.map(bt => bt.tag.id)
+    }))
   } catch (e) {
     console.error("Failed to get bookmarks by tag:", e)
     return []
@@ -360,7 +388,7 @@ export const updateBookmark = async (userId: string, bookmarkId: string, bookmar
     }
 
     revalidatePath('/')
-    
+
     return {
       success: true,
       message: 'Bookmark updated successfully!'
@@ -473,7 +501,7 @@ export const deleteBookmark = async (userId: string, bookmarkId: string): Promis
     // 然后删除书签
     await db.delete(bookmarks)
       .where(eq(bookmarks.id, bookmarkId))
-    
+
     return await createSuccessResponse(
       undefined,
       'Bookmark deleted successfully!',

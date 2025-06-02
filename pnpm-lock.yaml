@@ -118,6 +118,9 @@ importers:
       '@packages/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@packages/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@packages/utils':
         specifier: workspace:*
         version: link:../../packages/utils

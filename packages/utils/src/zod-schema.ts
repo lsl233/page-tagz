@@ -17,6 +17,7 @@ export const updateTagSchema = createTagFormSchema.extend({
 })
 
 export const bookmarkSchema = z.object({
+  id: z.string().optional(),
   title: z.string()
     .min(1, "Title is required")
     .max(100, "Title is too long")

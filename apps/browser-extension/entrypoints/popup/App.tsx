@@ -3,11 +3,15 @@ import '@packages/ui/globals.css';
 import { BookmarkForm } from '../../components/BookmarkForm'
 import { Button } from '@packages/ui/components/button-loading';
 import { sendMessage, onMessage, type WebsiteInfo } from '../../lib/message';
+import { Skeleton } from '@packages/ui/components/skeleton';
+import { Toaster } from '@packages/ui/components/sonner';
+import { BookmarkFormData } from '@packages/utils/src/zod-schema';
 
 function App() {
   const [userInfo, setUserInfo] = useState<any>(null);
-  const [websiteInfo, setWebsiteInfo] = useState<WebsiteInfo | null>(null);
+  const [websiteInfo, setWebsiteInfo] = useState<BookmarkFormData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const isMounted = useRef(false);
 
   const loadStoredUserInfo = async () => {
@@ -24,10 +28,10 @@ function App() {
       if (response.ok) {
         const bookmark = await response.json();
         setWebsiteInfo({
+          id: bookmark.id,
           title: bookmark.title,
           description: bookmark.description,
           url: bookmark.url,
-          ico: bookmark.ico,
           tags: bookmark.tags
         });
         setIsEditing(true);
@@ -60,6 +64,8 @@ function App() {
         setWebsiteInfo(e.data);
         setIsEditing(false);
       }
+
+      setIsLoading(false);
       
       return true;
     });
@@ -77,26 +83,65 @@ function App() {
     }
   }, [userInfo]);
 
+  if (isLoading) {
+    return (
+      <div className="p-4 w-96">
+        <div className="space-y-4">
+          {/* URL Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-10" /> {/* Label */}
+            <Skeleton className="h-10 w-full" /> {/* Input */}
+          </div>
+          
+          {/* Title Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-8" /> {/* Label */}
+            <Skeleton className="h-10 w-full" /> {/* Input */}
+          </div>
+          
+          {/* Description Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" /> {/* Label */}
+            <Skeleton className="h-18 w-full" /> {/* Textarea */}
+          </div>
+          
+          {/* Tags Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-12" /> {/* Label */}
+            <Skeleton className="h-10 w-full" /> {/* Combobox */}
+          </div>
+          
+          {/* Submit Button */}
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+    )
+  }
+
   if (!userInfo || !userInfo.id) {
     return <Button onClick={() => {
       window.open('http://localhost:3001', '_blank')
     }}>Login</Button>
   }
 
+  
+
   return (
     <div className="p-4 w-96">
       <BookmarkForm
         userId={userInfo.id}
         onSubmit={() => { }}
-        isEditing={isEditing}
         isSubmitting={false}
+        isEditing={isEditing}
         initialData={websiteInfo ? {
+          id: websiteInfo.id || '',
           title: websiteInfo.title || '',
           url: websiteInfo.url || '',
           description: websiteInfo.description || '',
-          tags: websiteInfo.tags?.map(tag => tag.id) || [],
+          tags: websiteInfo.tags || [],
         } : undefined}
       />
+       <Toaster position="top-center" />
     </div>
   );
 }

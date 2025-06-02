@@ -7,11 +7,12 @@ interface Tag {
 }
 
 export interface WebsiteInfo {
+  id?: string;
   title: string;
   description: string;
   ico: string;
   url: string;
-  tags?: Tag[];
+  tags: string[];
 }
 
 interface ProtocolMap {

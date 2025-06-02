@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useEffect, useState } from "react"
 import { bookmarkSchema, type BookmarkFormData } from "@packages/utils/zod-schema"
 import type { Tag } from "@packages/types"
+import { toast } from "@packages/ui/components/sonner"
 
 interface BookmarkFormProps {
   onSubmit: SubmitHandler<BookmarkFormData>
@@ -39,7 +40,7 @@ export function BookmarkForm({
 
   const form = useForm<BookmarkFormData>({
     resolver: zodResolver(bookmarkSchema),
-    defaultValues: initialData || defaultValues,
+    defaultValues: Object.assign({}, defaultValues, initialData)
   })
 
   const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {
@@ -63,9 +64,7 @@ export function BookmarkForm({
       
       // 调用父组件的 onSubmit
       onSubmitProp(data)
-      
-      // 重置表单
-      form.reset(defaultValues)
+      toast.success('Bookmark submitted successfully')
       
     } catch (error) {
       console.error('Error creating bookmark:', error)

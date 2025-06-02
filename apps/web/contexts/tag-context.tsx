@@ -95,7 +95,6 @@ export function TagProvider({ children }: { children: ReactNode }) {
     // 在删除书签前，先获取书签的标签信息
     const bookmarkToRemove = filteredBookmarks.find(b => b.id === bookmarkId);
     const tagsToUpdate = bookmarkToRemove?.tags || [];
-    debugger
     // 更新标签计数
     if (tagsToUpdate.length > 0) {
       setUserTags(prevTags => 

@@ -95,7 +95,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
     // 在删除书签前，先获取书签的标签信息
     const bookmarkToRemove = filteredBookmarks.find(b => b.id === bookmarkId);
     const tagsToUpdate = bookmarkToRemove?.tags || [];
-    
+    debugger
     // 更新标签计数
     if (tagsToUpdate.length > 0) {
       setUserTags(prevTags => 
@@ -121,6 +121,22 @@ export function TagProvider({ children }: { children: ReactNode }) {
     // 如果当前选中的标签ID与书签关联的标签匹配，则添加到列表
     if (selectedTagId && tagIds && tagIds.includes(selectedTagId)) {
       setFilteredBookmarks(prev => [bookmark, ...prev])
+    }
+
+    // 更新相关标签的计数
+    if (tagIds && tagIds.length > 0) {
+      setUserTags(prevTags => 
+        prevTags.map(tag => {
+          // 如果标签在新添加的书签中，增加计数
+          if (tagIds.includes(tag.id)) {
+            return {
+              ...tag,
+              bookmarkCount: Number(tag.bookmarkCount) + 1
+            };
+          }
+          return tag;
+        })
+      );
     }
   }
 

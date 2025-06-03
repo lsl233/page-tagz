@@ -68,9 +68,6 @@ export const BookmarkItem = memo(function BookmarkItem({
   }, [id])
 
   const handleEdit = async (data: BookmarkFormData) => {
-    
-    // BUG: 选中了标签，保存后会自动移除
-    // BUG: 编辑成功会提示2次
     if (!session?.user?.id) {
       toast.error("You must be logged in to edit a bookmark")
       return

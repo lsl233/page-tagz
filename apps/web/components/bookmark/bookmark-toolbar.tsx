@@ -9,6 +9,7 @@ import { useUIContext } from "@/contexts/ui-context"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { recordBookmarkClicksBatchEfficient } from "@/lib/api"
 
 export function BookmarkToolbar() {
   const { filteredBookmarks } = useTagContext()
@@ -36,11 +37,26 @@ export function BookmarkToolbar() {
     }
   }, [])
 
-  const sendOpenAllBookmarksMessage = () => {
+  const sendOpenAllBookmarksMessage = async () => {
     window.postMessage({ 
       type: 'OPEN_ALL_BOOKMARKS', 
       data: filteredBookmarks.map(bookmark => bookmark.url) 
     }, '*')
+
+    // 批量更新点击次数
+    try {
+      const bookmarkIds = filteredBookmarks.map(bookmark => bookmark.id)
+      const result = await recordBookmarkClicksBatchEfficient(bookmarkIds)
+      
+      console.log(`Updated click counts for ${result.updatedCount} bookmarks`)
+      
+      if (result.updatedCount !== result.requestedCount) {
+        toast.warning(`Only ${result.updatedCount} out of ${result.requestedCount} bookmarks were updated`)
+      }
+    } catch (error) {
+      console.error("Failed to update bookmark click counts:", error)
+      // 不显示错误给用户，因为这不影响核心功能
+    }
   }
 
   const handleOpenAllBookmarks = () => {
@@ -64,11 +80,6 @@ export function BookmarkToolbar() {
   const handleToggleRightSidebar = () => {
     toggleRightSidebar()
   }
-
-  // 检查是否所有侧边栏都已折叠
-  const allCollapsed = leftSidebarCollapsed && rightSidebarCollapsed
-  // 检查是否所有侧边栏都已展开
-  const allExpanded = !leftSidebarCollapsed && !rightSidebarCollapsed
 
   return (
     <div className="p-4 flex justify-between border-b">

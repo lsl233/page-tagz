@@ -23,7 +23,7 @@ export function BookmarkSidebar() {
   }
 
   return (
-    <div className="w-[210px] flex-shrink-0 bg-background flex flex-col">
+    <div className="w-full h-full flex-shrink-0 bg-background flex flex-col">
       <div className="p-2">
         <h2 className="font-semibold text-lg">PageTags</h2>
       </div>

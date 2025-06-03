@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { TagProvider } from "@/contexts/tag-context"
+import { UIProvider } from "@/contexts/ui-context"
 // import { ThemeProvider } from "@/contexts/theme-context"
 import { cn } from "@/lib/utils"
 
@@ -33,14 +34,16 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
-          <TagProvider>
-            <SessionProvider>
-              <AuthProvider>
-                {children}
-              </AuthProvider>
-              <Toaster position="top-center" />
-            </SessionProvider>
-          </TagProvider>
+          <UIProvider>
+            <TagProvider>
+              <SessionProvider>
+                <AuthProvider>
+                  {children}
+                </AuthProvider>
+                <Toaster position="top-center" />
+              </SessionProvider>
+            </TagProvider>
+          </UIProvider>
         {/* </ThemeProvider> */}
       </body>
     </html>

@@ -9,9 +9,11 @@ import { type BookmarkFormData } from "@/lib/zod-schema"
 import { createBookmark } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
+import { useTagContext } from "@/contexts/tag-context"
 
-export function RightSidebarActions({ userTags }: { userTags: any[] }) {
+export function RightSidebarActions() {
   const { data: session } = useSession()
+  const { userTags } = useTagContext()
   const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [currentBookmark, setCurrentBookmark] = useState<BookmarkFormData | undefined>(undefined)

@@ -5,13 +5,20 @@ import { GalleryVerticalEnd, IndentDecrease } from "lucide-react"
 import { Button } from "../ui/button-loading"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 import { useTagContext } from "@/contexts/tag-context"
+import { useUIContext } from "@/contexts/ui-context"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export function BookmarkToolbar() {
   const { filteredBookmarks } = useTagContext()
+  const { 
+    leftSidebarCollapsed, 
+    rightSidebarCollapsed, 
+    toggleLeftSidebar,
+    toggleRightSidebar
+  } = useUIContext()
   const [extensionLoaded, setExtensionLoaded] = useState(false)
-
 
   useEffect(() => {
     console.log('bookmark toolbar mounted')
@@ -27,17 +34,19 @@ export function BookmarkToolbar() {
     return () => {
       window.removeEventListener('message', listener)
     }
-
   }, [])
 
   const sendOpenAllBookmarksMessage = () => {
-    window.postMessage({ type: 'OPEN_ALL_BOOKMARKS', data: filteredBookmarks.map(bookmark => bookmark.url) }, '*')
+    window.postMessage({ 
+      type: 'OPEN_ALL_BOOKMARKS', 
+      data: filteredBookmarks.map(bookmark => bookmark.url) 
+    }, '*')
   }
 
   const handleOpenAllBookmarks = () => {
     if (filteredBookmarks.length > 10) {
       toast("Too many bookmarks", {
-        description: `Is real open ${filteredBookmarks.length} bookmarks?`,
+        description: `Are you sure you want to open ${filteredBookmarks.length} bookmarks?`,
         action: {
           label: "Open",
           onClick: () => sendOpenAllBookmarksMessage(),
@@ -46,64 +55,72 @@ export function BookmarkToolbar() {
     } else {
       sendOpenAllBookmarksMessage()
     }
-    // window.postMessage({ type: 'OPEN_ALL_BOOKMARKS', data: filteredBookmarks.map(bookmark => bookmark.url) }, '*')
   }
 
-  const handleCollapseAll = () => {
-    // TODO: 实现折叠所有功能
-    console.log("Collapse all")
+  const handleToggleLeftSidebar = () => {
+    toggleLeftSidebar()
   }
 
-  const handleExpandAll = () => {
-    // TODO: 实现展开所有功能
-    console.log("Expand all")
+  const handleToggleRightSidebar = () => {
+    toggleRightSidebar()
   }
+
+  // 检查是否所有侧边栏都已折叠
+  const allCollapsed = leftSidebarCollapsed && rightSidebarCollapsed
+  // 检查是否所有侧边栏都已展开
+  const allExpanded = !leftSidebarCollapsed && !rightSidebarCollapsed
 
   return (
     <div className="p-4 flex justify-between border-b">
       <div className="flex items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={handleCollapseAll}>
-              <IndentDecrease />
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={handleToggleLeftSidebar}
+            >
+              <IndentDecrease className={cn(leftSidebarCollapsed ? 'rotate-180' : '')} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Collapse All</p>
+            <p>Collapse All Sidebars</p>
           </TooltipContent>
         </Tooltip>
         <SearchBar />
       </div>
 
       <div className="flex items-center gap-2">
-        {
-          extensionLoaded && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleOpenAllBookmarks}
-                  disabled={filteredBookmarks.length === 0}
-                >
-                  <GalleryVerticalEnd />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Open All Bookmarks in New Tab</p>
-              </TooltipContent>
-            </Tooltip>
-          )
-        }
+        {extensionLoaded && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleOpenAllBookmarks}
+                disabled={filteredBookmarks.length === 0}
+              >
+                <GalleryVerticalEnd />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Open All Bookmarks in New Tab</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={handleExpandAll}>
-              <IndentDecrease className="rotate-180" />
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={handleToggleRightSidebar}
+            >
+              <IndentDecrease className={cn(rightSidebarCollapsed ? '' : 'rotate-180')} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Expand All</p>
+            <p>Toggle Right Sidebar</p>
           </TooltipContent>
         </Tooltip>
       </div>

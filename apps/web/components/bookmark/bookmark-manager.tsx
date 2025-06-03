@@ -1,11 +1,15 @@
+"use client"
+
 // import { useState } from "react"
 import { BookmarkList } from "@/components/bookmark/bookmark-list"
 import { BookmarkSidebar } from "@/components/bookmark/bookmark-sidebar"
 import { RightSidebar } from "@/components/right-sidebar"
 import { BookmarkToolbar } from "@/components/bookmark/bookmark-toolbar"
+import { useUIContext } from "@/contexts/ui-context"
+import { cn } from "@/lib/utils"
 
-export async function BookmarkManager() {
-  // const { filteredBookmarks } = useTagContext()
+export function BookmarkManager() {
+  const { leftSidebarCollapsed, rightSidebarCollapsed } = useUIContext()
 
   // const handleOpenAllBookmarks = () => {
   //   filteredBookmarks.forEach(bookmark => {
@@ -16,7 +20,12 @@ export async function BookmarkManager() {
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar */}
-      <BookmarkSidebar />
+      <div className={cn(
+        "transition-all duration-300 ease-in-out overflow-hidden",
+        leftSidebarCollapsed ? "w-0" : "w-[210px]"
+      )}>
+        <BookmarkSidebar />
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden border-l border-r">
@@ -30,7 +39,12 @@ export async function BookmarkManager() {
       </div>
 
       {/* Right Sidebar */}
-      <RightSidebar />
+      <div className={cn(
+        "transition-all duration-300 ease-in-out overflow-hidden",
+        rightSidebarCollapsed ? "w-0" : "w-[250px]"
+      )}>
+        <RightSidebar />
+      </div>
     </div>
   )
 }

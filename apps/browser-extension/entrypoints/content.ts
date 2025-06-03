@@ -5,22 +5,24 @@ export default defineContentScript({
   matches: ['http://localhost/*'],
   runAt: 'document_end',
   async main() {
-    console.log('Hello content.11');
-    // browser.cookies.get({
-    //   url: 'http://localhost:3001',
-    //   name: 'jwt',
-    // }).then((cookie) => {
-    //   console.log('cookie', cookie);
-    // });
+    console.log('content script loaded')
     const user = formatLocalUserInfo(window.localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_USER_KEY))
     await sendMessage('userInfo', user)
-    
-    window.addEventListener('storage', function (event) {
-      console.log('storage', event);
-    });
 
-    // onMessage('injectContent', (e) => {
-    //   console.log('injectContent', e);
-    // })  
+    // window.addEventListener('storage', function (event) {
+    //   console.log('storage', event);
+    // });
+    const listener = (event: MessageEvent) => {
+      const { data, type } = event.data
+      if (type === 'CONTENT_SCRIPT_LOADED') {
+        console.log('CONTENT_SCRIPT_LOADED')
+        window.postMessage({ type: 'CONTENT_SCRIPT_LOADED_RECEIVED' }, '*')
+      }
+
+      if (type === 'OPEN_ALL_BOOKMARKS') {
+        sendMessage('openTabs', data)
+      }
+    }
+    window.addEventListener('message', listener)
   },
 });

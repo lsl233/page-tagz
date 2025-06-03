@@ -1,7 +1,7 @@
 import { onMessage } from "../lib/message";
 
 export default defineBackground(() => {
-  console.log('Hello background!', { id: browser.runtime.id });
+  console.log('background script loaded', { id: browser.runtime.id });
 
   onMessage('userInfo', (e) => {
     console.log('userInfo', e);
@@ -17,7 +17,13 @@ export default defineBackground(() => {
 
     return true
   })
-  
+
+  onMessage('openTabs', async (e) => {
+    console.log('openTabs')
+    e.data.forEach(async (url: string) => browser.tabs.create({url}))
+    return true
+  })
+
 
   // browser.action.onClicked.addListener(async () => {
   //   console.log('onClicked');

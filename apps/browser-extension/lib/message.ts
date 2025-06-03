@@ -19,6 +19,7 @@ interface ProtocolMap {
   userInfo(user: any): void;
   injectContent(tabId: number): Promise<boolean>;
   websiteInfo(websiteInfo: WebsiteInfo): boolean;
+  openTabs(urls: string[]): boolean;
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>();

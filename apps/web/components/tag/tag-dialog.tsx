@@ -15,6 +15,8 @@ import { createTag, updateTag as updateTagAction, type ActionResponse } from "@/
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "sonner"
 import { useTagContext } from "@/contexts/tag-context"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 
 type TagDialogProps = {
   open: boolean
@@ -28,6 +30,8 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { user } = useAuth()
   const { updateTag, addTag } = useTagContext()
+  const [isContinueCreateTag, setIsContinueCreateTag] = useState(false)
+
 
   const defaultValues: CreateTagForm = {
     name: "",
@@ -55,6 +59,7 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
           updateTag(initialData.id, response.data)
           toast.success(response.message)
           onSubmitSuccess?.(data)
+
           handleClose()
         } else {
           switch (response.error?.code) {
@@ -76,7 +81,11 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
           addTag(createdTag)
           toast.success(response.message)
           onSubmitSuccess?.(data)
-          handleClose()
+          if (isContinueCreateTag) {
+            form.reset()
+          } else {
+            handleClose()
+          }
         } else {
           switch (response.error?.code) {
             case "DUPLICATE_TAG":
@@ -100,6 +109,7 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
   const handleClose = () => {
     form.reset()
     form.clearErrors()
+    setIsContinueCreateTag(false)
     onOpenChange(false)
   }
 
@@ -171,8 +181,27 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
               <Button type="button" disabled={isSubmitting} variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" loading={isSubmitting}>{isEditing ? "Save changes" : "Add tag"}</Button>
+              <Button type="submit" loading={isSubmitting}>Submit</Button>
+
             </DialogFooter>
+            {
+              !isEditing && (
+                <Label className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
+                  <Checkbox
+                    id="toggle-2"
+                    checked={isContinueCreateTag}
+                    onCheckedChange={(checked) => setIsContinueCreateTag(checked === "indeterminate" ? false : checked as boolean)}
+                    className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+                  />
+                  <div className="grid gap-1.5 font-normal">
+                    <p className="text-sm leading-none font-medium">
+                      After submit, Is continue create tag?
+                    </p>
+                  </div>
+                </Label>
+              )
+            }
+
           </form>
         </Form>
       </DialogContent>

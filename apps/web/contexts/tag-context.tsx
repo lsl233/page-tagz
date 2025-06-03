@@ -238,7 +238,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
 
   // 用于乐观更新添加标签
   const addTag = (tag: Tag) => {
-    setUserTags(prev => [...prev, { ...tag, bookmarkCount: 0 }]);
+    setUserTags(prev => [{ ...tag, bookmarkCount: 0 }, ...prev]);
     // 如果是首个标签，可以自动选中
     if (userTags.length === 0) {
       setSelectedTagId(tag.id);

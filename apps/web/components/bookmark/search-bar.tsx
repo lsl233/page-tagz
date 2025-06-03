@@ -23,11 +23,11 @@ export const SearchBar = memo(function SearchBar() {
   }, [])
 
   return (
-    <div className="relative">
+    <div className="relative flex-1">
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input 
         placeholder="Search bookmarks, URLs, or tags..." 
-        className="pl-9 pr-4" 
+        className="pl-9 pr-4 w-full md:w-80 focus:w-full" 
         value={inputValue}
         onChange={handleChange}
       />

@@ -82,8 +82,8 @@ export function BookmarkToolbar() {
   }
 
   return (
-    <div className="p-4 flex justify-between border-b">
-      <div className="flex items-center gap-2">
+    <div className="p-4 flex  gap-2 justify-between border-b">
+      <div className="flex flex-1 items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button 
@@ -95,7 +95,7 @@ export function BookmarkToolbar() {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Collapse All Sidebars</p>
+            <p>Toggle Left Sidebar</p>
           </TooltipContent>
         </Tooltip>
         <SearchBar />

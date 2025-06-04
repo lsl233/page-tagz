@@ -1,7 +1,6 @@
 "use client"
 
 import { useForm, type SubmitHandler } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button-loading"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -10,10 +9,9 @@ import { Combobox } from "@/components/ui/combobox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
-import { bookmarkSchema, type BookmarkFormData } from "@packages/utils/zod-schema"
+import { bookmarkSchemaResolver, type BookmarkFormData } from "@packages/utils/zod-schema"
 import { useTagContext } from "@/contexts/tag-context"
 import { ActionResponse } from "@/lib/actions"
-import { Bookmark } from "@packages/types"
 
 type BookmarkDialogProps = {
   open: boolean
@@ -45,7 +43,7 @@ export function BookmarkDialog({
   }
 
   const form = useForm<BookmarkFormData>({
-    resolver: zodResolver(bookmarkSchema),
+    resolver: bookmarkSchemaResolver,
     defaultValues: Object.assign({}, defaultValues, initialData)
   })
 

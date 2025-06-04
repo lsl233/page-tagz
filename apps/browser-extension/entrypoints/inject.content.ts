@@ -49,6 +49,7 @@ function getWebsiteInfo(): WebsiteInfo {
     title,
     description,
     ico,
+    tags: [],
     url: window.location.href
   };
 }

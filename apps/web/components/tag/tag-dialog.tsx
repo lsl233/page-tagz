@@ -2,15 +2,13 @@
 
 import type React from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { Button } from "@/components/ui/button-loading"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-import { createTagFormSchema, CreateTagForm } from "@/lib/zod-schema"
+import { createTagFormSchemaResolver, type CreateTagForm } from "@packages/utils/zod-schema"
 import { createTag, updateTag as updateTagAction, type ActionResponse } from "@/lib/actions"
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "sonner"
@@ -39,7 +37,7 @@ export function TagDialog({ open, onOpenChange, isEditing = false, onSubmitSucce
   }
 
   const form = useForm<CreateTagForm>({
-    resolver: zodResolver(createTagFormSchema),
+    resolver: createTagFormSchemaResolver,
     defaultValues: initialData || defaultValues,
   })
 

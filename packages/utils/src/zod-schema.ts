@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export const createTagFormSchema = z.object({
   name: z.string()
@@ -9,8 +10,6 @@ export const createTagFormSchema = z.object({
     .max(200, "Description cannot exceed 200 characters")
     .transform(val => val || ""),
 })
-
-export type CreateTagForm = z.infer<typeof createTagFormSchema>
 
 export const updateTagSchema = createTagFormSchema.extend({
   id: z.string(),
@@ -34,20 +33,21 @@ export const bookmarkSchema = z.object({
     .min(1, "Please select at least one tag")
 })
 
-export type BookmarkFormData = z.infer<typeof bookmarkSchema>
-
 export const createBookmarkSchema = bookmarkSchema
 export const updateBookmarkSchema = bookmarkSchema.extend({
   id: z.string(),
 })
 
-
 export const registerSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Password must be at least 6 characters")
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 })
 
-export type RegisterFormData = z.infer<typeof registerSchema>
+
 
 export const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -55,4 +55,16 @@ export const loginSchema = z.object({
   rememberMe: z.boolean().optional(),
 })
 
+export type BookmarkFormData = z.infer<typeof bookmarkSchema>
+export type RegisterFormData = z.infer<typeof registerSchema>
 export type LoginFormData = z.infer<typeof loginSchema>
+export type CreateTagForm = z.infer<typeof createTagFormSchema>
+export type UpdateTagForm = z.infer<typeof updateTagSchema>
+
+
+export const bookmarkSchemaResolver = zodResolver(bookmarkSchema)
+export const loginSchemaResolver = zodResolver(loginSchema)
+export const registerSchemaResolver = zodResolver(registerSchema)
+export const createTagFormSchemaResolver = zodResolver(createTagFormSchema)
+export const updateTagSchemaResolver = zodResolver(updateTagSchema)
+

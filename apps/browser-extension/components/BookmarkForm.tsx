@@ -1,14 +1,13 @@
 "use client"
 
 import { useForm, type SubmitHandler } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@packages/ui/components/button-loading"
 import { Input } from "@packages/ui/components/input"
 import { Textarea } from "@packages/ui/components/textarea"
 import { Combobox } from "@packages/ui/components/combobox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@packages/ui/components/form"
 import { useEffect, useState } from "react"
-import { bookmarkSchema, type BookmarkFormData } from "@packages/utils/zod-schema"
+import { bookmarkSchema, bookmarkSchemaResolver, type BookmarkFormData } from "@packages/utils/zod-schema"
 import type { Tag } from "@packages/types"
 import { toast } from "@packages/ui/components/sonner"
 
@@ -39,8 +38,8 @@ export function BookmarkForm({
   }
 
   const form = useForm<BookmarkFormData>({
-    resolver: zodResolver(bookmarkSchema),
-    defaultValues: Object.assign({}, defaultValues, initialData)
+    resolver: bookmarkSchemaResolver,
+    defaultValues: Object.assign({}, defaultValues, initialData),
   })
 
   const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {

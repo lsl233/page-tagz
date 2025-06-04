@@ -1,7 +1,6 @@
 "use client"
 
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button-loading"
@@ -9,22 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { signIn } from "next-auth/react"
 import { SiGithub } from "react-icons/si"
 import { toast } from "sonner"
-import { loginSchema, registerSchema, type LoginFormData, type RegisterFormData } from "@/lib/zod-schema"
+import { RegisterFormData, type LoginFormData, loginSchemaResolver, registerSchemaResolver } from "@packages/utils/zod-schema"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { useAuthActions } from "@/hooks/use-auth-actions"
 import { cn } from "@/lib/utils"
-
-// Extended schema with confirmPassword for the form
-const registerFormSchema = registerSchema.extend({
-  confirmPassword: z.string(),
-})
-
-// Type for the form data
-type RegisterFormValues = z.infer<typeof registerFormSchema>
 
 type LoginDialogProps = {
   open: boolean
@@ -44,16 +34,15 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
       password: "",
       rememberMe: false,
     },
-    resolver: zodResolver(loginSchema),
+    resolver: loginSchemaResolver,
   })
 
-  const registerForm = useForm<RegisterFormValues>({
+  const registerForm = useForm<RegisterFormData>({
     defaultValues: {
       email: "",
       password: "",
-      confirmPassword: "",
     },
-    resolver: zodResolver(registerFormSchema),
+    resolver: registerSchemaResolver,
   })
 
   // Reset forms when switching between login and register
@@ -79,7 +68,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     }
   }
 
-  const handleRegisterSubmit = async (data: RegisterFormValues) => {
+  const handleRegisterSubmit = async (data: RegisterFormData) => {
     // Remove confirmPassword from data
     const { confirmPassword, ...registerData } = data
 

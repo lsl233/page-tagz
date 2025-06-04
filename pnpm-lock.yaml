@@ -467,7 +467,7 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.0(react@19.1.0))
       zod:
-        specifier: ^3.24.3
+        specifier: ^3.24.4
         version: 3.25.32
     devDependencies:
       '@types/node':

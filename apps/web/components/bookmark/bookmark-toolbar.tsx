@@ -13,9 +13,9 @@ import { recordBookmarkClicksBatchEfficient } from "@/lib/api"
 
 export function BookmarkToolbar() {
   const { filteredBookmarks } = useTagContext()
-  const { 
-    leftSidebarCollapsed, 
-    rightSidebarCollapsed, 
+  const {
+    leftSidebarCollapsed,
+    rightSidebarCollapsed,
     toggleLeftSidebar,
     toggleRightSidebar
   } = useUIContext()
@@ -36,18 +36,18 @@ export function BookmarkToolbar() {
   }, [])
 
   const sendOpenAllBookmarksMessage = async () => {
-    window.postMessage({ 
-      type: 'OPEN_ALL_BOOKMARKS', 
-      data: filteredBookmarks.map(bookmark => bookmark.url) 
+    window.postMessage({
+      type: 'OPEN_ALL_BOOKMARKS',
+      data: filteredBookmarks.map(bookmark => bookmark.url)
     }, '*')
 
     // 批量更新点击次数
     try {
       const bookmarkIds = filteredBookmarks.map(bookmark => bookmark.id)
       const result = await recordBookmarkClicksBatchEfficient(bookmarkIds)
-      
+
       console.log(`Updated click counts for ${result.updatedCount} bookmarks`)
-      
+
       if (result.updatedCount !== result.requestedCount) {
         toast.warning(`Only ${result.updatedCount} out of ${result.requestedCount} bookmarks were updated`)
       }
@@ -58,6 +58,18 @@ export function BookmarkToolbar() {
   }
 
   const handleOpenAllBookmarks = () => {
+    if (!extensionLoaded) {
+      toast.warning("Please install the extension first", {
+        action: {
+          label: "Install",
+          onClick: () => {
+            window.open("https://chromewebstore.google.com/detail/pagetagz/jodahbeeakklmdmjajjgfgocibpmkipe", "_blank")
+          }
+        }
+      })
+      return
+    }
+
     if (filteredBookmarks.length > 10) {
       toast("Too many bookmarks", {
         description: `Are you sure you want to open ${filteredBookmarks.length} bookmarks?`,
@@ -84,9 +96,9 @@ export function BookmarkToolbar() {
       <div className="flex flex-1 items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon" 
+            <Button
+              variant="outline"
+              size="icon"
               onClick={handleToggleLeftSidebar}
             >
               <IndentDecrease className={cn(leftSidebarCollapsed ? 'rotate-180' : '')} />
@@ -100,29 +112,27 @@ export function BookmarkToolbar() {
       </div>
 
       <div className="flex items-center gap-2">
-        {extensionLoaded && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleOpenAllBookmarks}
-                disabled={filteredBookmarks.length === 0}
-              >
-                <GalleryVerticalEnd />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Open All Bookmarks in New Tab</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleOpenAllBookmarks}
+              className={cn((filteredBookmarks.length === 0 || !extensionLoaded) && 'opacity-90')}
+            >
+              <GalleryVerticalEnd />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Open All Bookmarks in New Tab</p>
+          </TooltipContent>
+        </Tooltip>
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon" 
+            <Button
+              variant="outline"
+              size="icon"
               onClick={handleToggleRightSidebar}
             >
               <IndentDecrease className={cn(rightSidebarCollapsed ? '' : 'rotate-180')} />

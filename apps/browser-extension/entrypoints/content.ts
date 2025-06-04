@@ -9,22 +9,6 @@ export default defineContentScript({
     const user = formatLocalUserInfo(window.localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_USER_KEY))
     await sendMessage('userInfo', user)
 
-    // window.addEventListener('storage', function (event) {
-    //   console.log('storage', event);
-    // });
-    debugger
     window.postMessage({ type: 'CONTENT_SCRIPT_LOADED' }, '*')
-    // const listener = (event: MessageEvent) => {
-    //   const { data, type } = event.data
-    //   if (type === 'CONTENT_SCRIPT_LOADED') {
-    //     console.log('CONTENT_SCRIPT_LOADED')
-    //     window.postMessage({ type: 'CONTENT_SCRIPT_LOADED_RECEIVED' }, '*')
-    //   }
-
-    //   if (type === 'OPEN_ALL_BOOKMARKS') {
-    //     sendMessage('openTabs', data)
-    //   }
-    // }
-    // window.addEventListener('message', listener)
   },
 });

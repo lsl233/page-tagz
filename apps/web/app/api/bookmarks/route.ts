@@ -46,7 +46,7 @@ export async function POST(
 
     let bookmark
 
-    if (id) {
+    if (id && typeof id === 'string') {
       // 更新现有书签
       console.log("Updating bookmark with id:", id)
       

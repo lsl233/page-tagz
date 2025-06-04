@@ -22,9 +22,9 @@ function App() {
   const checkExistingBookmark = async (url: string, userId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/bookmarks/check?url=${encodeURIComponent(url)}&userId=${userId}`
+        `${import.meta.env.VITE_API_URL}/api/bookmarks/check?url=${encodeURIComponent(url)}&userId=${userId}`
       );
-      
+
       if (response.ok) {
         const bookmark = await response.json();
         setWebsiteInfo({
@@ -37,7 +37,7 @@ function App() {
         setIsEditing(true);
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Error checking bookmark:', error);
@@ -49,7 +49,7 @@ function App() {
     console.log('initializeWebPageListener', isMounted.current)
     if (isMounted.current) return;
     isMounted.current = true;
-    
+
     const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
     console.log('tab', tab)
     if (!tab.id) return console.warn('No active tab found');
@@ -66,7 +66,7 @@ function App() {
       }
 
       setIsLoading(false);
-      
+
       return true;
     });
 
@@ -92,25 +92,25 @@ function App() {
             <Skeleton className="h-4 w-10" /> {/* Label */}
             <Skeleton className="h-10 w-full" /> {/* Input */}
           </div>
-          
+
           {/* Title Field */}
           <div className="space-y-2">
             <Skeleton className="h-4 w-8" /> {/* Label */}
             <Skeleton className="h-10 w-full" /> {/* Input */}
           </div>
-          
+
           {/* Description Field */}
           <div className="space-y-2">
             <Skeleton className="h-4 w-20" /> {/* Label */}
             <Skeleton className="h-18 w-full" /> {/* Textarea */}
           </div>
-          
+
           {/* Tags Field */}
           <div className="space-y-2">
             <Skeleton className="h-4 w-12" /> {/* Label */}
             <Skeleton className="h-10 w-full" /> {/* Combobox */}
           </div>
-          
+
           {/* Submit Button */}
           <Skeleton className="h-10 w-full" />
         </div>
@@ -139,7 +139,7 @@ function App() {
           tags: websiteInfo.tags || [],
         } : undefined}
       />
-       <Toaster position="top-center" />
+      <Toaster position="top-center" />
     </div>
   );
 }

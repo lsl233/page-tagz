@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "copy-env": "cd packages/env && npm run copy-env",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

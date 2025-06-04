@@ -24,13 +24,11 @@ export function BookmarkToolbar() {
   useEffect(() => {
     console.log('bookmark toolbar mounted')
     const listener = (event: MessageEvent) => {
-      if (event.data.type === 'CONTENT_SCRIPT_LOADED_RECEIVED') {
-        console.log('CONTENT_SCRIPT_LOADED_RECEIVED')
+      if (event.data.type === 'CONTENT_SCRIPT_LOADED') {
         setExtensionLoaded(true)
       }
     }
     window.addEventListener('message', listener)
-    window.postMessage({type: 'CONTENT_SCRIPT_LOADED'}, '*')
 
     return () => {
       window.removeEventListener('message', listener)

@@ -3,11 +3,10 @@
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { Button } from "@packages/ui/components/button-loading"
 import { Input } from "@packages/ui/components/input"
-import { Textarea } from "@packages/ui/components/textarea"
 import { Combobox } from "@packages/ui/components/combobox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@packages/ui/components/form"
 import { useEffect, useState } from "react"
-import { bookmarkSchema, bookmarkSchemaResolver, type BookmarkFormData } from "@packages/utils/zod-schema"
+import { bookmarkSchemaResolver, type BookmarkFormData } from "@packages/utils/zod-schema"
 import type { Tag } from "@packages/types"
 import { toast } from "@packages/ui/components/sonner"
 
@@ -34,6 +33,7 @@ export function BookmarkForm({
     title: "",
     url: "",
     description: "",
+    icon: "",
     tags: [],
   }
 
@@ -45,7 +45,7 @@ export function BookmarkForm({
   const handleSubmit: SubmitHandler<BookmarkFormData> = async (data) => {
     try {
       setIsSubmitting(true)
-      
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookmarks?userId=${userId}`, {
         method: 'POST',
         headers: {
@@ -60,11 +60,11 @@ export function BookmarkForm({
 
       const result = await response.json()
       console.log('Bookmark created:', result)
-      
+
       // 调用父组件的 onSubmit
       onSubmitProp(data)
       toast.success('Bookmark submitted successfully')
-      
+
     } catch (error) {
       console.error('Error creating bookmark:', error)
       // 这里可以添加错误提示
@@ -76,7 +76,7 @@ export function BookmarkForm({
   useEffect(() => {
     async function fetchUserTags() {
       if (!userId) return
-      
+
       setIsLoadingTags(true)
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tags/user-tags/${userId}`)
@@ -111,12 +111,18 @@ export function BookmarkForm({
             <FormItem>
               <FormLabel className="text-sm">URL</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="https://example.com"
-                  type="url"
-                  {...field}
-                  disabled={isSubmitting || isSubmittingProp}
-                />
+                <div className="flex relative items-center gap-2">
+                  <div className="absolute left-2 bg-gray-100 rounded-lg w-6 h-6 flex justify-center items-center">
+                    <img src={initialData?.icon} className="w-[1em] h-[1em]" />
+                  </div>
+                  <Input
+                    className="pl-10"
+                    placeholder="https://example.com"
+                    type="url"
+                    {...field}
+                    disabled={isSubmitting || isSubmittingProp}
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -140,7 +146,7 @@ export function BookmarkForm({
             </FormItem>
           )}
         />
-{/* 
+        {/* 
         <FormField
           control={form.control}
           name="description"

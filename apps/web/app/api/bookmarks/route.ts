@@ -42,7 +42,7 @@ export async function POST(
 
     const body = await request.json()
     const validatedData = bookmarkSchema.parse(body)
-    const { title, url, description, tags, id } = validatedData
+    const { title, url, description, tags, id, icon } = validatedData
 
     let bookmark
 
@@ -68,6 +68,7 @@ export async function POST(
         .set({
           title,
           url,
+          icon,
           description,
           updatedAt: new Date(),
         })

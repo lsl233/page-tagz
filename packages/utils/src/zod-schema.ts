@@ -29,6 +29,7 @@ export const bookmarkSchema = z.object({
     .max(500, "Description is too long")
     .transform(val => val || "")
     .optional(),
+  icon: z.string().optional(),
   tags: z.array(z.string())
     .min(1, "Please select at least one tag")
 })

@@ -58,6 +58,7 @@ function App() {
         title: bookmarked.title || '',
         description: bookmarked.description,
         url: bookmarked.url,
+        icon: bookmarked.icon || tab.favIconUrl,
         tags: bookmarked.tags
       });
       setIsEditing(true);
@@ -66,6 +67,7 @@ function App() {
         title: tab.title || '',
         description: '',
         url: tab.url,
+        icon: tab.favIconUrl || '',
         tags: []
       });
       setIsEditing(false);
@@ -146,6 +148,7 @@ function App() {
               id: websiteInfo.id || '',
               title: websiteInfo.title || '',
               url: websiteInfo.url || '',
+              icon: websiteInfo.icon || '',
               description: websiteInfo.description || '',
               tags: websiteInfo.tags || [],
             } : undefined}

@@ -71,7 +71,7 @@ export function BookmarkToolbar() {
     }
 
     if (filteredBookmarks.length > 10) {
-      toast("Too many bookmarks", {
+      toast.warning("Too many bookmarks", {
         description: `Are you sure you want to open ${filteredBookmarks.length} bookmarks?`,
         action: {
           label: "Open",
@@ -118,7 +118,7 @@ export function BookmarkToolbar() {
               variant="outline"
               size="icon"
               onClick={handleOpenAllBookmarks}
-              className={cn((filteredBookmarks.length === 0 || !extensionLoaded) && 'opacity-90')}
+              disabled={filteredBookmarks.length === 0}
             >
               <GalleryVerticalEnd />
             </Button>

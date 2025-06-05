@@ -2,10 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import '@packages/ui/globals.css';
 import { BookmarkForm } from '../../components/BookmarkForm'
 import { Button } from '@packages/ui/components/button-loading';
-import { sendMessage, onMessage, type WebsiteInfo } from '../../lib/message';
+import { sendMessage } from '../../lib/message';
 import { Skeleton } from '@packages/ui/components/skeleton';
 import { Toaster } from '@packages/ui/components/sonner';
 import { BookmarkFormData } from '@packages/utils/src/zod-schema';
+import { ArrowRight } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from '@packages/ui/components/card';
+import { Label } from '@packages/ui/components/label';
+import { Input } from '@packages/ui/components/input';
 
 function App() {
   const [userInfo, setUserInfo] = useState<any>(null);
@@ -90,29 +94,23 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="p-4 w-96">
+      <div className="p-4 w-[480px]">
         <div className="space-y-4">
           {/* URL Field */}
           <div className="space-y-2">
-            <Skeleton className="h-4 w-10" /> {/* Label */}
+            <Skeleton className="h-4 w-8" /> {/* Label "URL" */}
             <Skeleton className="h-10 w-full" /> {/* Input */}
           </div>
 
           {/* Title Field */}
           <div className="space-y-2">
-            <Skeleton className="h-4 w-8" /> {/* Label */}
+            <Skeleton className="h-4 w-10" /> {/* Label "Title" */}
             <Skeleton className="h-10 w-full" /> {/* Input */}
-          </div>
-
-          {/* Description Field */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-20" /> {/* Label */}
-            <Skeleton className="h-18 w-full" /> {/* Textarea */}
           </div>
 
           {/* Tags Field */}
           <div className="space-y-2">
-            <Skeleton className="h-4 w-12" /> {/* Label */}
+            <Skeleton className="h-4 w-12" /> {/* Label "Tags" */}
             <Skeleton className="h-10 w-full" /> {/* Combobox */}
           </div>
 
@@ -130,20 +128,36 @@ function App() {
   }
 
   return (
-    <div className="p-4 w-96">
-      <BookmarkForm
-        userId={userInfo.id}
-        onSubmit={() => setIsEditing(true)}
-        isSubmitting={false}
-        isEditing={isEditing}
-        initialData={websiteInfo ? {
-          id: websiteInfo.id || '',
-          title: websiteInfo.title || '',
-          url: websiteInfo.url || '',
-          description: websiteInfo.description || '',
-          tags: websiteInfo.tags || [],
-        } : undefined}
-      />
+    <div className="p-2 w-[480px] bg-gray-100/50">
+      <Card className="w-full p-4 m-0">
+        <CardHeader className="p-0 text-center">
+          <CardTitle className="text-xl">PageTagz</CardTitle>
+          <CardDescription>
+            Just one click bookmarking
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <BookmarkForm
+            userId={userInfo.id}
+            onSubmit={() => setIsEditing(true)}
+            isSubmitting={false}
+            isEditing={isEditing}
+            initialData={websiteInfo ? {
+              id: websiteInfo.id || '',
+              title: websiteInfo.title || '',
+              url: websiteInfo.url || '',
+              description: websiteInfo.description || '',
+              tags: websiteInfo.tags || [],
+            } : undefined}
+          />
+        </CardContent>
+        <CardFooter className="p-0 flex justify-center">
+          <Button variant="link" size="sm" className="text-sm text-gray-600 hover:text-gray-900" onClick={() => {
+            window.open(`${import.meta.env.VITE_API_URL}`, '_blank')
+          }}>Go To Dashboard <ArrowRight /></Button>
+
+        </CardFooter>
+      </Card>
       <Toaster position="top-center" />
     </div>
   );

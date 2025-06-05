@@ -118,7 +118,7 @@ export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<Comm
           {/* <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" /> */}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="p-0 max-h-full">
+      <PopoverContent className="p-0">
         <Command ref={ref}
           filter={(value, search, keywords) => {
             return keywords && keywords.length && keywords[0]?.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ? 1 : 0
@@ -129,7 +129,7 @@ export const Combobox = React.forwardRef<HTMLDivElement, CommandSelectProps<Comm
             className="h-9"
           />
 
-          <CommandList>
+          <CommandList className="max-h-[50vh]">
             {
               onCreate ? (
                 <CommandEmpty className="p-2">

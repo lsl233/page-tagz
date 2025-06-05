@@ -109,7 +109,7 @@ export function BookmarkForm({
           name="url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>URL</FormLabel>
+              <FormLabel className="text-sm">URL</FormLabel>
               <FormControl>
                 <Input
                   placeholder="https://example.com"
@@ -128,7 +128,7 @@ export function BookmarkForm({
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel className="text-sm">Title</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Bookmark title"
@@ -165,7 +165,7 @@ export function BookmarkForm({
           name="tags"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tags</FormLabel>
+              <FormLabel className="text-sm">Tags</FormLabel>
               <FormControl>
                 <Combobox
                   value={field.value}

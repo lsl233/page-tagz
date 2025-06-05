@@ -27,21 +27,13 @@ function App() {
 
       if (response.ok) {
         const bookmark = await response.json();
-        setWebsiteInfo({
-          id: bookmark.id,
-          title: bookmark.title,
-          description: bookmark.description,
-          url: bookmark.url,
-          tags: bookmark.tags
-        });
         setIsEditing(true);
-        return true;
+        return bookmark
       }
-
-      return false;
+      return false
     } catch (error) {
       console.error('Error checking bookmark:', error);
-      return false;
+      return false
     }
   }
 
@@ -52,25 +44,38 @@ function App() {
 
     const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
     console.log('tab', tab)
-    if (!tab.id) return console.warn('No active tab found');
+    if (!tab.id || !tab.url) return console.warn('No active tab found');
 
-    // 监听网页信息
-    onMessage('websiteInfo', async (e) => {
-      // 检查是否已收藏
-      const isBookmarked = await checkExistingBookmark(e.data.url, userInfo.id);
-      console.log('isBookmarked', isBookmarked)
-      // 如果没有收藏过，使用页面信息
-      if (!isBookmarked) {
-        setWebsiteInfo(e.data);
-        setIsEditing(false);
-      }
+    const bookmarked = await checkExistingBookmark(tab.url, userInfo.id);
 
+    if (bookmarked) {
+      setWebsiteInfo({
+        id: bookmarked.id,
+        title: bookmarked.title || '',
+        description: bookmarked.description,
+        url: bookmarked.url,
+        tags: bookmarked.tags
+      });
+      setIsEditing(true);
+    } else {
+      setWebsiteInfo({
+        title: tab.title || '',
+        description: '',
+        url: tab.url,
+        tags: []
+      });
+      setIsEditing(false);
+    }
+
+    setIsLoading(false);
+
+    try {
+      await sendMessage('injectContent', tab.id);
+
+    } catch (e) {
       setIsLoading(false);
-
-      return true;
-    });
-
-    await sendMessage('injectContent', tab.id);
+      console.log(e)
+    }
   }
 
   useEffect(() => {
@@ -128,7 +133,7 @@ function App() {
     <div className="p-4 w-96">
       <BookmarkForm
         userId={userInfo.id}
-        onSubmit={() => { }}
+        onSubmit={() => setIsEditing(true)}
         isSubmitting={false}
         isEditing={isEditing}
         initialData={websiteInfo ? {

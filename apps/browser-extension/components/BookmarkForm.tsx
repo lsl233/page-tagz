@@ -140,7 +140,7 @@ export function BookmarkForm({
             </FormItem>
           )}
         />
-
+{/* 
         <FormField
           control={form.control}
           name="description"
@@ -158,7 +158,7 @@ export function BookmarkForm({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={form.control}

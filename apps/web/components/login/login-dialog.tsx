@@ -24,7 +24,6 @@ type LoginDialogProps = {
 export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [isRegister, setIsRegister] = useState(false)
   const [isLoggingInWithGithub, setIsLoggingInWithGithub] = useState(false)
-  const router = useRouter()
   const { refreshUser, githubLogin } = useAuth()
   const { login, register, isLoading } = useAuthActions()
 
@@ -124,7 +123,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email, {field.value}</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
 
                       <Input placeholder="your@email.com" type="email" {...field} />
@@ -139,7 +138,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password, {field.value}</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} new-password="true" />
                     </FormControl>
@@ -153,7 +152,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password, {field.value}</FormLabel>
+                    <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} new-password="true" />
                     </FormControl>

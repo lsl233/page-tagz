@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "cp:env": "cp ../../packages/env/.env .",
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack --port 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

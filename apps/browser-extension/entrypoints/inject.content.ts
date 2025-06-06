@@ -1,3 +1,4 @@
+import { formatLocalUserInfo } from "@packages/utils/format-user-info";
 import { sendMessage, type WebsiteInfo } from "../lib/message";
 
 function getWebsiteInfo(): WebsiteInfo {
@@ -58,12 +59,6 @@ export default defineContentScript({
   registration: 'runtime',
   main(ctx) {
     console.log('Script was executed!');
-
-    // onMessage('websiteInfo', async (e) => {
-    //   console.log('websiteInfo', e);
-    //   // await new Promise(resolve => setTimeout(resolve, 50));
-    //   return 'Hello John!'
-    // })
     
     sendMessage('websiteInfo', getWebsiteInfo())
   },

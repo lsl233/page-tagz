@@ -13,6 +13,7 @@ type TagContextType = {
   filteredBookmarks: BookmarkWithTagsId[]
   setFilteredBookmarks: (bookmarks: BookmarkWithTagsId[]) => void
   userTags: TagWithBookmarkCount[]
+  userTagsLoading: boolean
   fetchBookmarks: () => Promise<void>
   removeBookmark: (bookmarkId: string) => void
   addBookmark: (bookmark: BookmarkWithTagsId, tagIds?: string[]) => void
@@ -32,7 +33,8 @@ export function TagProvider({ children }: { children: ReactNode }) {
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null)
   const [filteredBookmarks, setFilteredBookmarks] = useState<BookmarkWithTagsId[]>([])
   const [userTags, setUserTags] = useState<TagWithBookmarkCount[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [userTagsLoading, setUserTagsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<BookmarkWithTagsId[]>([])
 
@@ -55,12 +57,19 @@ export function TagProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initializeTags = async () => {
-      const tags = await getUserTags()
-      setUserTags(tags)
-      if (tags.length > 0 && selectedTagId === null) {
-        setSelectedTagId(tags[0].id)
+      try {
+        setUserTagsLoading(true)
+        const tags = await getUserTags()
+        setUserTags(tags)
+        if (tags.length > 0 && selectedTagId === null) {
+          setSelectedTagId(tags[0].id)
+        }
+      } catch (error) {
+        console.error("Error fetching user tags:", error)
+        toast.error("Failed to load tags")
+      } finally {
+        setUserTagsLoading(false)
       }
-      setIsLoading(false)
     }
     initializeTags()
   }, [])
@@ -81,12 +90,12 @@ export function TagProvider({ children }: { children: ReactNode }) {
     }
 
     const query = searchQuery.toLowerCase();
-    const results = filteredBookmarks.filter(bookmark => 
-      bookmark.title?.toLowerCase().includes(query) || 
-      bookmark.url?.toLowerCase().includes(query) || 
+    const results = filteredBookmarks.filter(bookmark =>
+      bookmark.title?.toLowerCase().includes(query) ||
+      bookmark.url?.toLowerCase().includes(query) ||
       bookmark.description?.toLowerCase().includes(query)
     );
-    
+
     setSearchResults(results);
   }, [searchQuery, filteredBookmarks]);
 
@@ -97,7 +106,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
     const tagsToUpdate = bookmarkToRemove?.tags || [];
     // 更新标签计数
     if (tagsToUpdate.length > 0) {
-      setUserTags(prevTags => 
+      setUserTags(prevTags =>
         prevTags.map(tag => {
           // 如果标签在被删除的书签中，减少计数
           if (tagsToUpdate.includes(tag.id)) {
@@ -110,7 +119,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
         })
       );
     }
-    
+
     // 从列表中移除书签
     setFilteredBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId));
   }
@@ -124,7 +133,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
 
     // 更新相关标签的计数
     if (tagIds && tagIds.length > 0) {
-      setUserTags(prevTags => 
+      setUserTags(prevTags =>
         prevTags.map(tag => {
           // 如果标签在新添加的书签中，增加计数
           if (tagIds.includes(tag.id)) {
@@ -152,28 +161,19 @@ export function TagProvider({ children }: { children: ReactNode }) {
       const removedTags = oldTags.filter(tagId => !tags.includes(tagId));
       const addedTags = tags.filter(tagId => !oldTags.includes(tagId));
 
-      console.log('Tag changes:', {
-        bookmarkId,
-        oldTags,
-        newTags: tags,
-        removed: removedTags,
-        added: addedTags,
-        selectedTagId
-      });
-
       // 1. 检查是否移除了当前选中的标签
       const removedCurrentTag = selectedTagId && removedTags.includes(selectedTagId);
-      
+
       if (removedCurrentTag) {
         // 如果移除了当前选中的标签，从当前视图中删除这个书签
         setFilteredBookmarks(prev => prev.filter(b => b.id !== bookmarkId));
       } else {
         // 检查书签是否应该显示在当前视图中
         const shouldIncludeInCurrentView = !selectedTagId || tags.includes(selectedTagId);
-        
+
         if (shouldIncludeInCurrentView) {
           // 创建更新后的书签数据
-          const updatedBookmark = exists 
+          const updatedBookmark = exists
             ? { ...filteredBookmarks[existingIndex], ...updatedData, tags }
             : { id: bookmarkId, ...updatedData, tags } as BookmarkWithTagsId;
 
@@ -194,7 +194,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
 
       // 2. 更新标签的计数（无论书签是否在当前视图中都要更新）
       if (removedTags.length > 0 || addedTags.length > 0) {
-        setUserTags(prevTags => 
+        setUserTags(prevTags =>
           prevTags.map(tag => {
             // 标签被移除
             if (removedTags.includes(tag.id)) {
@@ -203,7 +203,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
                 bookmarkCount: Math.max(0, Number(tag.bookmarkCount) - 1)
               };
             }
-            
+
             // 标签被添加
             if (addedTags.includes(tag.id)) {
               return {
@@ -226,10 +226,10 @@ export function TagProvider({ children }: { children: ReactNode }) {
   // 用于乐观更新标签
   const updateTag = (tagId: string, updatedTag: Partial<Tag>) => {
     console.log('updateTag', userTags, updatedTag)
-    setUserTags(prev => 
+    setUserTags(prev =>
       prev.map(tag => tag.id === tagId ? { ...tag, ...updatedTag } : tag)
     );
-    
+
     // 如果更新的是当前选中的标签，可能需要更新标签名显示
     if (tagId === selectedTagId) {
       // 可能需要其他操作，比如更新页面标题等
@@ -252,7 +252,7 @@ export function TagProvider({ children }: { children: ReactNode }) {
       // 过滤掉删除的标签后，选择新的标签
       setUserTags(prev => {
         const updatedTags = prev.filter(tag => tag.id !== tagId);
-        
+
         if (updatedTags.length > 0) {
           // 如果还有其他标签，选中第一个标签
           setSelectedTagId(updatedTags[0].id);
@@ -260,10 +260,10 @@ export function TagProvider({ children }: { children: ReactNode }) {
           // 如果没有标签了，将选中状态设为 null
           setSelectedTagId(null);
         }
-        
+
         // 清空当前书签列表，因为选中的标签已经改变
         setFilteredBookmarks([]);
-        
+
         return updatedTags;
       });
     } else {
@@ -273,12 +273,13 @@ export function TagProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <TagContext.Provider value={{ 
-      selectedTagId, 
-      setSelectedTagId, 
-      filteredBookmarks, 
-      setFilteredBookmarks, 
+    <TagContext.Provider value={{
+      selectedTagId,
+      setSelectedTagId,
+      filteredBookmarks,
+      setFilteredBookmarks,
       userTags,
+      userTagsLoading,
       fetchBookmarks,
       removeBookmark,
       addBookmark,

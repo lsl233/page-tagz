@@ -18,7 +18,6 @@ function App() {
   const isMounted = useRef(false);
 
   const loadStoredUserInfo = async () => {
-    console.log('loadStoredUserInfo')
     const userInfo = await storage.getItem('local:userInfo')
     setUserInfo(userInfo);
   }
@@ -149,9 +148,11 @@ function App() {
                       tags: websiteInfo.tags || [],
                     } : undefined}
                   />
-                  <Button variant="link" size="sm" className="text-sm text-gray-600 hover:text-gray-900" onClick={() => {
-                    window.open(`${import.meta.env.VITE_API_URL}`, '_blank')
-                  }}>Go To Dashboard <ArrowRight /></Button>
+                  <div className="flex justify-center mt-2">
+                    <Button variant="link" size="sm" className="text-sm mx-auto text-gray-600 hover:text-gray-900" onClick={() => {
+                      window.open(`${import.meta.env.VITE_API_URL}`, '_blank')
+                    }}>Go To Dashboard <ArrowRight /></Button>
+                  </div>
                 </>
               )
             )

@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import { bookmarkSchemaResolver, type BookmarkFormData } from "@packages/utils/zod-schema"
 import type { Tag } from "@packages/types"
 import { toast } from "@packages/ui/components/sonner"
+import { safeFetch } from "@packages/utils/safe-fetch"
 
 interface BookmarkFormProps {
   onSubmit: SubmitHandler<BookmarkFormData>
@@ -70,6 +71,23 @@ export function BookmarkForm({
       // 这里可以添加错误提示
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleCreateTag = async (name: string) => {
+    const result = await safeFetch<Tag>(`${import.meta.env.VITE_API_URL}/api/tags/user-tags/${userId}?name=${name}`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    })
+
+    if (!result.success) {
+      toast.error(result.message || 'Failed to create tag')
+      return
+    }
+
+    if (result.data) {
+      setUserTags([result.data, ...userTags])
+      form.setValue('tags', [...form.getValues('tags'), result.data.id])
     }
   }
 
@@ -176,6 +194,7 @@ export function BookmarkForm({
                 <Combobox
                   value={field.value}
                   onChange={field.onChange}
+                  onCreate={handleCreateTag}
                   options={userTags}
                   disabled={isSubmitting || isLoadingTags}
                 />

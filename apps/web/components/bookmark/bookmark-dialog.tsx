@@ -11,7 +11,9 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { bookmarkSchemaResolver, type BookmarkFormData } from "@packages/utils/zod-schema"
 import { useTagContext } from "@/contexts/tag-context"
-import { ActionResponse } from "@/lib/actions"
+import { ActionResponse, createTag } from "@/lib/actions"
+import { safeFetch } from "@packages/utils/safe-fetch"
+import { Tag } from "@packages/types"
 
 type BookmarkDialogProps = {
   open: boolean
@@ -33,7 +35,7 @@ export function BookmarkDialog({
   availableTags = []
 }: BookmarkDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { addBookmark, updateBookmark, selectedTagId, userTags } = useTagContext()
+  const { addBookmark, updateBookmark, selectedTagId, userTags, addTag } = useTagContext()
 
   const defaultValues: BookmarkFormData & { id?: string } = {
     title: "",
@@ -120,6 +122,21 @@ export function BookmarkDialog({
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleCreateTag = async (name: string) => {
+    const result = await createTag('', { name, description: "" })
+    if (!result.success) {
+      toast.error(result.message || 'Failed to create tag')
+      return
+    }
+
+    if (result.data) {
+      addTag(result.data)
+      form.setValue('tags', [...form.getValues('tags'), result.data.id])
+      return result.data
+    }
+    return
   }
 
   const handleClose = () => {
@@ -216,6 +233,7 @@ export function BookmarkDialog({
                     <Combobox
                       value={field.value}
                       onChange={field.onChange}
+                      onCreate={handleCreateTag}
                       options={userTags}
                       disabled={isSubmitting}
                     />

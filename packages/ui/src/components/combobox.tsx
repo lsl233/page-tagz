@@ -28,7 +28,7 @@ interface CommandSelectProps<T> {
   multiple?: boolean;
   disabled?: boolean;
   onChange?: (value: string[]) => void;
-  onCreate?: (name: string) => Promise<T>;
+  onCreate?: (name: string) => Promise<any>;
 }
 
 interface CommandOption {

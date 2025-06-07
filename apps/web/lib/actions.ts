@@ -46,6 +46,17 @@ export const getUserTags = async (userId?: string) => {
 
 export const createTag = async (userId: string, tag: CreateTagForm): Promise<ActionResponse> => {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        message: "Unauthorized",
+        error: {
+          code: "UNAUTHORIZED",
+          details: "You are not authorized to create a tag"
+        }
+      }
+    }
     // 检查是否已存在同名标签（基于用户ID）
     const existingTag = await db.query.tags.findFirst({
       where: (tags, { and, eq }) => and(
@@ -70,7 +81,7 @@ export const createTag = async (userId: string, tag: CreateTagForm): Promise<Act
 
     const createdTag = await db.insert(tags).values({
       ...tag,
-      userId,
+      userId: session.user.id,
     })
       .returning()
 

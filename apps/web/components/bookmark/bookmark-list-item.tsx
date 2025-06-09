@@ -156,14 +156,22 @@ export const BookmarkItem = memo(function BookmarkItem({
                 <Button
                   variant="ghost"
                   className="justify-start text-sm"
-                  onClick={() => setEditOpen(true)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setEditOpen(true)
+                  }}
                 >
                   Edit
                 </Button>
                 <Button
                   variant="ghost"
                   className="justify-start text-sm text-destructive hover:text-destructive"
-                  onClick={() => setDeleteOpen(true)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setDeleteOpen(true)
+                  }}
                 >
                   Delete
                 </Button>

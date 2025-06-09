@@ -90,9 +90,17 @@ export function TagNavItem({ tag }: TagNavItemProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setOpen(true)}>Edit</DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setDeleteOpen(true)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setOpen(true)
+                  }}
+                >Edit</DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setDeleteOpen(true)
+                  }}
                   className="text-destructive focus:text-destructive"
                 >
                   Delete

@@ -2,8 +2,7 @@
 
 import { FiMoreVertical } from "react-icons/fi";
 import { FaHashtag } from "react-icons/fa6";
-
-import { type tags, type bookmarkTags } from "@packages/drizzle/schema";
+import { common } from "@packages/utils/event-handlers";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
@@ -33,16 +32,16 @@ export function TagNavItem({ tag }: TagNavItemProps) {
         message: "You must be logged in to perform this action"
       };
     }
-    
+
     // 发送服务器请求
     const response = await deleteTag(userId, tag.id);
 
     // 立即执行乐观更新
     removeTag(tag.id);
-    
+
     // 关闭删除对话框
     setDeleteOpen(false);
-    
+
     return response;
   };
 
@@ -52,9 +51,9 @@ export function TagNavItem({ tag }: TagNavItemProps) {
 
   return (
     <>
-      <TagDialog 
-        open={open} 
-        onOpenChange={setOpen} 
+      <TagDialog
+        open={open}
+        onOpenChange={setOpen}
         isEditing={true}
         initialData={{
           id: tag.id,
@@ -69,8 +68,8 @@ export function TagNavItem({ tag }: TagNavItemProps) {
         description={`This action cannot be undone. This will permanently delete the tag "${tag.name}".`}
         onDelete={handleDelete}
       />
-      <li 
-        key={tag.name} 
+      <li
+        key={tag.name}
         className={cn(
           "group relative flex items-center gap-1 w-full justify-start pl-2 pr-1 py-1.5 h-auto cursor-pointer hover:bg-accent rounded-md",
           selectedTagId === tag.id && "bg-gray-100"
@@ -90,17 +89,11 @@ export function TagNavItem({ tag }: TagNavItemProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem 
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setOpen(true)
-                  }}
+                <DropdownMenuItem
+                  onClick={common.menuItemClick(() => setOpen(true))}
                 >Edit</DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setDeleteOpen(true)
-                  }}
+                <DropdownMenuItem
+                  onClick={common.safeClick(() => setDeleteOpen(true))}
                   className="text-destructive focus:text-destructive"
                 >
                   Delete

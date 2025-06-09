@@ -17,7 +17,8 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const { 
     filteredBookmarks, 
-    isLoading, 
+    isLoading,
+    userTagsLoading,
     userTags, 
     removeBookmark, 
     fetchBookmarks,
@@ -78,7 +79,7 @@ export function BookmarkList({ viewMode }: BookmarkListProps) {
     }
   }
 
-  if (isAuthLoading || isLoading) {
+  if (isAuthLoading || userTagsLoading || isLoading) {
     return (
       <div className="flex flex-col justify-center items-center p-8">
         <FaCircleNotch className="animate-spin text-muted-foreground" size={24} />

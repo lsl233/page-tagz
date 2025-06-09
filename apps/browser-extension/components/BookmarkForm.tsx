@@ -15,7 +15,7 @@ interface BookmarkFormProps {
   onSubmit: SubmitHandler<BookmarkFormData>
   isEditing: boolean
   isSubmitting: boolean
-  initialData?: BookmarkFormData
+  initialData: BookmarkFormData | null
   userId: string
 }
 
@@ -114,6 +114,7 @@ export function BookmarkForm({
   }, [userId])
 
   useEffect(() => {
+    debugger
     if (initialData) {
       form.reset(initialData)
     }

@@ -106,7 +106,7 @@ function App() {
           {
             (!userInfo || !userInfo.id) ? (
               <Button className="w-full" onClick={() => {
-                window.open('http://localhost:3001', '_blank')
+                window.open(`${import.meta.env.VITE_API_URL}`, '_blank')
               }}>Login</Button>
             ) : (
               (isLoading) ? (
@@ -139,14 +139,7 @@ function App() {
                     onSubmit={() => setIsEditing(true)}
                     isSubmitting={false}
                     isEditing={isEditing}
-                    initialData={websiteInfo ? {
-                      id: websiteInfo.id || '',
-                      title: websiteInfo.title || '',
-                      url: websiteInfo.url || '',
-                      icon: websiteInfo.icon || '',
-                      description: websiteInfo.description || '',
-                      tags: websiteInfo.tags || [],
-                    } : undefined}
+                    initialData={websiteInfo}
                   />
                   <div className="flex justify-center mt-2">
                     <Button variant="link" size="sm" className="text-sm mx-auto text-gray-600 hover:text-gray-900" onClick={() => {

@@ -29,7 +29,7 @@ export function BookmarkSidebar() {
     <div className="w-full h-full flex-shrink-0 bg-background flex flex-col">
       <div className="p-2 flex items-center gap-2">
         <Image src="/logo.png" alt="PageTags" width={28} height={28} /> 
-        {/* <h2 className="font-semibold text-lg">PageTags</h2> */}
+        <h2 className="font-semibold text-lg">PageTagz</h2>
       </div>
       {/* <div className="px-2 py-1">
 

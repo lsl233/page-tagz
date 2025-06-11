@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import Image from "next/image"
 import { TagButton } from "@/components/tag/tag-button"
 import { LoginButton } from "@/components/login/login-button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -17,8 +18,6 @@ export function BookmarkSidebar() {
   const { userTags, userTagsLoading } = useTagContext()
   const session = useSession()
 
-  console.log('session', session)
-
   const userInfo = session?.data?.user
 
   const handleLogout = () => {
@@ -28,13 +27,20 @@ export function BookmarkSidebar() {
 
   return (
     <div className="w-full h-full flex-shrink-0 bg-background flex flex-col">
-      <div className="p-2">
-        <h2 className="font-semibold text-lg">PageTags</h2>
+      <div className="p-2 flex items-center gap-2">
+        <Image src="/logo.png" alt="PageTags" width={28} height={28} /> 
+        {/* <h2 className="font-semibold text-lg">PageTags</h2> */}
       </div>
-      <div className="px-2 py-1">
-        <TagButton />
-      </div>
+      {/* <div className="px-2 py-1">
+
+      </div> */}
       <div className="flex-1 overflow-auto">
+        {/* <h3 className="text-sm font-medium my-1 px-2">Groups</h3> */}
+        <div className="flex items-center justify-between my-1 px-2">
+          <h3 className="text-sm font-medium">Tags</h3>
+          <TagButton />
+        </div>
+
         <ul className="py-2 px-2 space-y-1">
           {userTagsLoading ? (
             <>
@@ -50,7 +56,6 @@ export function BookmarkSidebar() {
         </ul>
       </div>
       <div className="p-2 border-t">
-
         {
           session.status === "authenticated" ? (
             <div className="flex items-center gap-2">

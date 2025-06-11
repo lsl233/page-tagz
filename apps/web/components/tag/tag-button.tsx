@@ -14,8 +14,8 @@ export const TagButton = () => {
         onOpenChange={setOpen}
         isEditing={false}
       />
-      <Button onClick={() => setOpen(true)} className="w-full gap-2" variant="outline">
-        <span className="text-lg">+</span> New Tag
+      <Button size="icon" variant="link" className="underline-none h-auto w-auto px-2.5" onClick={() => setOpen(true)}>
+        <span className="text-lg">+</span>
       </Button>
     </>
   )
